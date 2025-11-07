@@ -10,6 +10,7 @@ class TestAPIClient:
     
     def test_api_client_initialization(self):
         """Test that APIClient initializes correctly."""
+        # Ensure we have an API key in the environment
         client = APIClient()
         assert client.api_key is not None
         assert client.timeout == 30

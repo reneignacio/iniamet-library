@@ -27,8 +27,17 @@ from .stations import StationManager
 from .data import DataDownloader
 from .regional import RegionalDownloader
 from .qc import QualityControl, apply_quality_control, get_qc_report
-from .visualization import plot_temperature_map, plot_station_map, quick_temp_map
 from .utils import get_region_name, get_variable_info, REGION_MAP, VARIABLE_INFO
+
+# Import visualization only if IPython is available (optional dependency)
+try:
+    from .visualization import plot_temperature_map, plot_station_map, quick_temp_map
+    _HAS_VISUALIZATION = True
+except ImportError:
+    _HAS_VISUALIZATION = False
+    plot_temperature_map = None
+    plot_station_map = None
+    quick_temp_map = None
 
 __all__ = [
     "INIAClient",

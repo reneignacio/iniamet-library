@@ -28,15 +28,26 @@
 ### 1. Crear Repositorio en GitHub
 
 ```bash
-# Crear repo en GitHub primero (github.com/inia-chile/iniamet)
-# Luego:
+# Ya tienes el repo creado en: https://github.com/reneignacio/iniamet-library
+# Configurar Git localmente:
 git init
 git add .
 git commit -m "feat: initial release v0.1.0"
 git branch -M main
-git remote add origin https://github.com/inia-chile/iniamet.git
+git remote add origin https://github.com/reneignacio/iniamet-library.git
 git push -u origin main
 ```
+
+**Configuración del repositorio en GitHub:**
+1. Ve a: https://github.com/reneignacio/iniamet-library/settings
+2. En "About" (lado derecho), agrega:
+   - **Description**: High-level Python library for accessing Chilean INIA agrometeorological station data from 400+ weather stations.
+   - **Website**: https://github.com/reneignacio/iniamet-library
+   - **Topics**: `python`, `climate-data`, `weather`, `meteorology`, `chile`, `agriculture`, `api-client`, `data-science`, `pandas`
+3. Habilita:
+   - ✅ Issues
+   - ✅ Discussions (recomendado para Q&A)
+   - ✅ Projects
 
 ### 2. Instalar Herramientas de Build
 

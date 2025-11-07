@@ -2,8 +2,11 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-blue.svg)](https://pypi.org/project/iniamet/)
 
-**INIAMET** is a high-level Python library for easy access to Chilean INIA (Instituto de Investigaciones Agropecuarias) agrometeorological station data.
+**High-level Python library for accessing Chilean INIA (Instituto de Investigaciones Agropecuarias) agrometeorological station data.**
+
+Access data from 400+ weather stations across Chile with a simple, intuitive API. Download temperature, precipitation, humidity, wind, radiation data and more.
 
 ## 🌟 Features
 
@@ -24,9 +27,19 @@ pip install iniamet
 Or install from source:
 
 ```bash
-git clone https://github.com/inia-chile/iniamet
+git clone https://github.com/reneignacio/iniamet-library
 cd iniamet-library
 pip install -e .
+```
+
+## 🎨 Optional: Visualization Features
+
+If you want to use the visualization features (interactive maps), install with visualization support:
+
+```bash
+pip install iniamet[viz]
+# or install all optional features:
+pip install iniamet[all]
 ```
 
 ## 🔑 API Key Configuration
@@ -228,11 +241,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 - **API Documentation**: [INIA Agromet API v2](https://agromet.inia.cl/api/v2)
 - **INIA Official Site**: [https://www.inia.cl](https://www.inia.cl)
-- **Issue Tracker**: [GitHub Issues](https://github.com/inia/iniamet/issues)
+- **Issue Tracker**: [GitHub Issues](https://github.com/reneignacio/iniamet-library/issues)
 
 ## 📧 Contact
 
-For questions and support, please contact: data@inia.cl
+For questions and support, please open an issue on GitHub.
 
 ---
 

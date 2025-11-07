@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Made IPython and folium optional dependencies for visualization
+- Visualization module now imports gracefully if dependencies not installed
+- Fixed test failures in CI/CD by adding API key environment variable
+- Updated all GitHub URLs to point to correct repository (reneignacio/iniamet-library)
+- Added conftest.py to automatically set test API key for CI
+
+### Changed
+- Moved visualization dependencies to optional `[viz]` extra
+- Install with `pip install iniamet[viz]` to use visualization features
+- Updated installation instructions in README
+
 ### Security
 - **BREAKING CHANGE**: Removed hardcoded API key for security
 - Users must now configure their own API key (see README)
