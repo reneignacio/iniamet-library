@@ -1,0 +1,15 @@
+# Documentation build requirements for Read the Docs
+
+# Sphinx and extensions
+sphinx>=7.0.0
+sphinx-rtd-theme>=2.0.0
+sphinx-autodoc-typehints>=1.24.0
+myst-parser>=2.0.0
+
+# For API documentation
+sphinxcontrib-napoleon>=0.7
+
+# Package dependencies (needed for autodoc)
+requests>=2.28.0
+pandas>=1.5.0
+numpy>=1.23.0
