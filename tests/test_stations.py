@@ -12,7 +12,7 @@ class TestStationManager:
     @patch('iniamet.stations.APIClient')
     def test_station_manager_initialization(self, mock_api):
         """Test StationManager initialization."""
-        manager = StationManager()
+        manager = StationManager(api=mock_client)
         assert manager is not None
     
     @patch('iniamet.stations.APIClient')
@@ -32,7 +32,7 @@ class TestStationManager:
         }
         mock_api.return_value = mock_client
         
-        manager = StationManager()
+        manager = StationManager(api=mock_client)
         stations = manager.get_stations()
         
         assert isinstance(stations, pd.DataFrame)
@@ -49,7 +49,7 @@ class TestStationManager:
         }
         mock_api.return_value = mock_client
         
-        manager = StationManager()
+        manager = StationManager(api=mock_client)
         stations = manager.get_stations(region='R16')  # Ñuble
         
         assert isinstance(stations, pd.DataFrame)
@@ -65,7 +65,7 @@ class TestStationManager:
         }
         mock_api.return_value = mock_client
         
-        manager = StationManager()
+        manager = StationManager(api=mock_client)
         station = manager.get_station('INIA-47')
         
         assert station is not None
@@ -90,7 +90,7 @@ class TestStationFiltering:
         }
         mock_api.return_value = mock_client
         
-        manager = StationManager()
+        manager = StationManager(api=mock_client)
         stations = manager.get_stations()
         
         if len(stations) > 0:

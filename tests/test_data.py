@@ -12,8 +12,8 @@ class TestDataDownloader:
     
     def test_data_downloader_initialization(self):
         """Test DataDownloader initialization."""
-        with patch('iniamet.data.APIClient'):
-            downloader = DataDownloader()
+        with patch('iniamet.data.APIClient') as mock_api:
+            downloader = DataDownloader(api=mock_api())
             assert downloader is not None
     
     @patch('iniamet.data.APIClient')
@@ -29,7 +29,7 @@ class TestDataDownloader:
         }
         mock_api.return_value = mock_client
         
-        downloader = DataDownloader()
+        downloader = DataDownloader(api=mock_client)
         result = downloader.download(
             station="INIA-47",
             variable=2002,
@@ -47,8 +47,9 @@ class TestDataDownloader:
         mock_client.get_data.return_value = {'datos': []}
         mock_api.return_value = mock_client
         
-        downloader = DataDownloader(cache=True)
-        assert downloader.cache is True
+        cache = Mock()
+        downloader = DataDownloader(api=mock_client, cache=cache)
+        assert downloader.cache is not None
     
     @patch('iniamet.data.APIClient')
     def test_download_handles_empty_response(self, mock_api):
@@ -57,7 +58,7 @@ class TestDataDownloader:
         mock_client.get_data.return_value = {'datos': []}
         mock_api.return_value = mock_client
         
-        downloader = DataDownloader()
+        downloader = DataDownloader(api=mock_client)
         result = downloader.download(
             station="INIA-47",
             variable=2002,
@@ -84,7 +85,7 @@ class TestDataProcessing:
         }
         mock_api.return_value = mock_client
         
-        downloader = DataDownloader()
+        downloader = DataDownloader(api=mock_client)
         result = downloader.download(
             station="INIA-47",
             variable=2002,

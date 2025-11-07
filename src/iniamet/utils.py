@@ -3,7 +3,7 @@ Utility functions for the INIAMET library.
 """
 
 from datetime import datetime, date
-from typing import Union
+from typing import Union, Optional
 
 
 # Region code mapping
@@ -213,23 +213,24 @@ def get_region_name(code: str) -> str:
     return code.title()
 
 
-def get_region_code(name: str) -> str:
+def get_region_code(name: str) -> Optional[str]:
     """
     Get region code from name.
     
     Args:
-        name: Region name (e.g., "Ñuble")
+        name: Region name (e.g., "Ñuble") or code (e.g., "R16")
         
     Returns:
-        Region code (e.g., "R16")
-        
-    Raises:
-        ValueError: If name is invalid
+        Region code (e.g., "R16") or None if invalid
     """
+    # If already a code, return it
+    if name.upper() in REGION_MAP:
+        return name.upper()
+    
     name_normalized = normalize_text(name)
     
     for code, region_name in REGION_MAP.items():
         if normalize_text(region_name) == name_normalized:
             return code
     
-    raise ValueError(f"Invalid region name: {name}")
+    return None
