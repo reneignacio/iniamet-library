@@ -98,7 +98,7 @@ Commands:
 
 Examples:
   # Save your API key
-  python -m iniamet.config set-key 6c66ed32deb984ce0fb41ffdc54c1e98b517fa50
+  python -m iniamet.config set-key YOUR_API_KEY_HERE
 
   # Check current configuration
   python -m iniamet.config show
