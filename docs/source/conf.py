@@ -11,10 +11,15 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 project = 'INIAMET'
-copyright = '2025, INIA Climate Data Team'
-author = 'INIA Climate Data Team'
-release = '0.1.0'
-version = '0.1.0'
+copyright = '2025, René Castillo'
+author = 'René Castillo'
+release = '0.1.1'
+version = '0.1.1'
+
+# -- Internationalization ----------------------------------------------------
+language = 'en'  # Default language
+locale_dirs = ['../locales/']  # Path is relative to the conf.py file
+gettext_compact = False  # Optional
 
 # -- General configuration ---------------------------------------------------
 extensions = [
@@ -81,12 +86,18 @@ html_theme_options = {
     'style_external_links': False,
 }
 
+# Language selector
 html_context = {
     "display_github": True,
     "github_user": "reneignacio",
     "github_repo": "iniamet-library",
     "github_version": "main",
     "conf_py_path": "/docs/source/",
+    "languages": [
+        ("English", "/en/"),
+        ("Español", "/es/"),
+    ],
+    "current_language": language,
 }
 
 # -- Options for PDF output --------------------------------------------------

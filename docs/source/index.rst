@@ -15,6 +15,12 @@ INIAMET Documentation
 
 **High-level Python library for accessing Chilean INIA (Instituto de Investigaciones Agropecuarias) agrometeorological station data.**
 
+.. warning::
+   **DISCLAIMER**: This is an **unofficial, community-developed library**. 
+   It is **NOT officially affiliated with, endorsed by, or maintained by INIA** 
+   (Instituto de Investigaciones Agropecuarias). This library accesses publicly 
+   available data from INIA's agrometeorological API.
+
 Access data from 400+ weather stations across Chile with a simple, intuitive API. Download temperature, precipitation, humidity, wind, radiation data and more.
 
 Features
