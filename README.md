@@ -3,6 +3,7 @@
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-blue.svg)](https://pypi.org/project/iniamet/)
+[![Documentation Status](https://readthedocs.org/projects/iniamet/badge/?version=latest)](https://iniamet.readthedocs.io/en/latest/?badge=latest)
 
 **High-level Python library for accessing Chilean INIA (Instituto de Investigaciones Agropecuarias) agrometeorological station data.**
 
@@ -232,6 +233,15 @@ mypy src/
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+## 📚 Documentation
+
+Full documentation available at: **[iniamet.readthedocs.io](https://iniamet.readthedocs.io/)**
+
+- [Installation Guide](https://iniamet.readthedocs.io/en/latest/installation.html)
+- [Quick Start Tutorial](https://iniamet.readthedocs.io/en/latest/quickstart.html)
+- [API Reference](https://iniamet.readthedocs.io/en/latest/api/client.html)
+- [Examples](https://iniamet.readthedocs.io/en/latest/examples.html)
 
 ## 🤝 Contributing
 
