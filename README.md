@@ -2,10 +2,12 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI version](https://img.shields.io/badge/pypi-v0.1.0-blue.svg)](https://pypi.org/project/iniamet/)
+[![PyPI version](https://badge.fury.io/py/iniamet.svg)](https://pypi.org/project/iniamet/)
 [![Documentation Status](https://readthedocs.org/projects/iniamet/badge/?version=latest)](https://iniamet.readthedocs.io/en/latest/?badge=latest)
 
 **High-level Python library for accessing Chilean INIA (Instituto de Investigaciones Agropecuarias) agrometeorological station data.**
+
+> ⚠️ **DISCLAIMER**: This is an **unofficial, community-developed library**. It is **NOT officially affiliated with, endorsed by, or maintained by INIA** (Instituto de Investigaciones Agropecuarias). This library accesses publicly available data from INIA's agrometeorological API.
 
 Access data from 400+ weather stations across Chile with a simple, intuitive API. Download temperature, precipitation, humidity, wind, radiation data and more.
 
@@ -249,6 +251,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 🔗 Links
 
+- **PyPI Package**: [https://pypi.org/project/iniamet/](https://pypi.org/project/iniamet/)
 - **API Documentation**: [INIA Agromet API v2](https://agromet.inia.cl/api/v2)
 - **INIA Official Site**: [https://www.inia.cl](https://www.inia.cl)
 - **Issue Tracker**: [GitHub Issues](https://github.com/reneignacio/iniamet-library/issues)
@@ -257,6 +260,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 For questions and support, please open an issue on GitHub.
 
+## ⚖️ Legal Disclaimer
+
+**This is an UNOFFICIAL library**. This project is:
+- NOT affiliated with INIA (Instituto de Investigaciones Agropecuarias)
+- NOT endorsed or maintained by INIA
+- An independent, community-developed tool
+- Accessing publicly available data from INIA's API
+
+All data accessed through this library belongs to INIA. Please refer to INIA's terms of service for data usage policies.
+
 ---
 
-**Note**: This library is not officially affiliated with INIA. It's an independent project to facilitate access to public INIA data.
+Made with ❤️ by the community for the research community.

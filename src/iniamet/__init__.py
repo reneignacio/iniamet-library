@@ -1,7 +1,12 @@
 """
 INIAMET - Chilean INIA Agrometeorological Data Library
 
-A high-level Python library for accessing Chilean INIA agrometeorological station data.
+An unofficial, high-level Python library for accessing Chilean INIA 
+agrometeorological station data.
+
+DISCLAIMER: This library is NOT officially affiliated with, endorsed by, 
+or maintained by INIA (Instituto de Investigaciones Agropecuarias). 
+It accesses publicly available data from INIA's agrometeorological API.
 
 Example usage:
     >>> from iniamet import INIAClient
@@ -18,7 +23,7 @@ Example usage:
     >>> mapa = quick_temp_map(client, region='Ñuble', date='2025-10-12')
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "INIA Climate Data Team"
 __license__ = "MIT"
 
