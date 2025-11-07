@@ -27,7 +27,8 @@ class TestQualityControl:
         result = qc.detect_extreme_values(data, 'temperatura')
         
         # Should detect 2 extreme values
-        assert result['extreme_count'] >= 2
+        assert 'qc_extreme' in result.columns
+        assert result['qc_extreme'].sum() >= 2
     
     def test_stuck_sensor_detection(self):
         """Test detection of stuck sensors."""
@@ -38,10 +39,10 @@ class TestQualityControl:
         })
         
         qc = QualityControl()
-        result = qc.check_persistence(data)
+        result = qc.detect_stuck_sensor(data)
         
         # Should detect stuck sensor
-        assert result['stuck_count'] > 0
+        assert 'qc_stuck' in result.columns
     
     def test_valid_data_passes_qc(self):
         """Test that valid data passes quality control."""

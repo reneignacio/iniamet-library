@@ -45,13 +45,15 @@ class TestAPIClient:
     @patch('iniamet.api_client.requests.Session.get')
     def test_request_retry_on_failure(self, mock_get):
         """Test that request retries on failure."""
+        import requests
         # Setup mock to fail then succeed
         mock_response_fail = Mock()
         mock_response_fail.status_code = 500
+        mock_response_fail.raise_for_status.side_effect = requests.exceptions.HTTPError("Server error")
         
         mock_response_success = Mock()
         mock_response_success.status_code = 200
-        mock_response_success.json.return_value = {"data": "test"}
+        mock_response_success.json = Mock(return_value={"data": "test"})
         
         mock_get.side_effect = [mock_response_fail, mock_response_success]
         
@@ -68,18 +70,16 @@ class TestAPIEndpoints:
     @patch('iniamet.api_client.APIClient._request')
     def test_get_stations(self, mock_request):
         """Test get_stations method."""
-        mock_request.return_value = {
-            "estaciones": [
-                {"codigo": "INIA-47", "nombre": "Chillán"}
-            ]
-        }
+        mock_request.return_value = [
+            {"codigo": "INIA-47", "nombre": "Chillán"}
+        ]
         
         client = APIClient()
         result = client.get_stations()
         
-        assert "estaciones" in result
-        assert len(result["estaciones"]) == 1
-        mock_request.assert_called_once_with("estaciones", params=None)
+        assert isinstance(result, list)
+        assert len(result) == 1
+        mock_request.assert_called_once_with("estaciones")
     
     @patch('iniamet.api_client.APIClient._request')
     def test_get_variables(self, mock_request):
@@ -93,7 +93,7 @@ class TestAPIEndpoints:
         client = APIClient()
         result = client.get_variables("INIA-47")
         
-        assert "variables" in result
+        assert isinstance(result, list)
         mock_request.assert_called_once()
     
     @patch('iniamet.api_client.APIClient._request')
@@ -108,5 +108,5 @@ class TestAPIEndpoints:
         client = APIClient()
         result = client.get_data("INIA-47", 2002, "2024-09-01", "2024-09-30")
         
-        assert "datos" in result
+        assert isinstance(result, list)
         mock_request.assert_called_once()

@@ -20,16 +20,14 @@ class TestStationManager:
         """Test getting all stations."""
         mock_client = Mock()
         mock_client.get_stations.return_value = [
-            
-                {
-                    'codigo': 'INIA-47',
-                    'nombre': 'Chillán',
-                    'latitud': -36.6033,
-                    'longitud': -71.9117,
-                    'region': 'Ñuble'
-                }
-            ]
-        }
+            {
+                'codigo': 'INIA-47',
+                'nombre': 'Chillán',
+                'latitud': -36.6033,
+                'longitud': -71.9117,
+                'region': 'Ñuble'
+            }
+        ]
         mock_api.return_value = mock_client
         
         manager = StationManager(api=mock_client)
@@ -42,11 +40,9 @@ class TestStationManager:
         """Test filtering stations by region."""
         mock_client = Mock()
         mock_client.get_stations.return_value = [
-            
-                {'codigo': 'INIA-47', 'nombre': 'Chillán', 'region': 'Ñuble'},
-                {'codigo': 'INIA-139', 'nombre': 'Talca', 'region': 'Maule'}
-            ]
-        }
+            {'codigo': 'INIA-47', 'nombre': 'Chillán', 'region': 'Ñuble'},
+            {'codigo': 'INIA-139', 'nombre': 'Talca', 'region': 'Maule'}
+        ]
         mock_api.return_value = mock_client
         
         manager = StationManager(api=mock_client)
@@ -59,10 +55,8 @@ class TestStationManager:
         """Test getting single station by code."""
         mock_client = Mock()
         mock_client.get_stations.return_value = [
-            
-                {'codigo': 'INIA-47', 'nombre': 'Chillán', 'region': 'Ñuble'}
-            ]
-        }
+            {'codigo': 'INIA-47', 'nombre': 'Chillán', 'region': 'Ñuble'}
+        ]
         mock_api.return_value = mock_client
         
         manager = StationManager(api=mock_client)
@@ -79,15 +73,13 @@ class TestStationFiltering:
         """Test filtering stations by coordinates."""
         mock_client = Mock()
         mock_client.get_stations.return_value = [
-            
-                {
-                    'codigo': 'INIA-47',
-                    'nombre': 'Chillán',
-                    'latitud': -36.6033,
-                    'longitud': -71.9117
-                }
-            ]
-        }
+            {
+                'codigo': 'INIA-47',
+                'nombre': 'Chillán',
+                'latitud': -36.6033,
+                'longitud': -71.9117
+            }
+        ]
         mock_api.return_value = mock_client
         
         manager = StationManager(api=mock_client)

@@ -21,12 +21,10 @@ class TestDataDownloader:
         """Test basic data download."""
         # Setup mock
         mock_client = Mock()
-        mock_client.get_data.return_value = {
-            'datos': [
-                {'tiempo': '2024-09-01 00:00:00', 'valor': 15.5},
-                {'tiempo': '2024-09-01 01:00:00', 'valor': 16.0}
-            ]
-        }
+        mock_client.get_data.return_value = [
+            {'tiempo': '2024-09-01 00:00:00', 'valor': 15.5},
+            {'tiempo': '2024-09-01 01:00:00', 'valor': 16.0}
+        ]
         mock_api.return_value = mock_client
         
         downloader = DataDownloader(api=mock_client)
@@ -55,7 +53,7 @@ class TestDataDownloader:
     def test_download_handles_empty_response(self, mock_api):
         """Test that downloader handles empty API response."""
         mock_client = Mock()
-        mock_client.get_data.return_value = {'datos': []}
+        mock_client.get_data.return_value = []
         mock_api.return_value = mock_client
         
         downloader = DataDownloader(api=mock_client)
@@ -77,12 +75,10 @@ class TestDataProcessing:
     def test_dataframe_conversion(self, mock_api):
         """Test conversion of API data to DataFrame."""
         mock_client = Mock()
-        mock_client.get_data.return_value = {
-            'datos': [
-                {'tiempo': '2024-09-01 00:00:00', 'valor': 15.5},
-                {'tiempo': '2024-09-01 01:00:00', 'valor': 16.0}
-            ]
-        }
+        mock_client.get_data.return_value = [
+            {'tiempo': '2024-09-01 00:00:00', 'valor': 15.5},
+            {'tiempo': '2024-09-01 01:00:00', 'valor': 16.0}
+        ]
         mock_api.return_value = mock_client
         
         downloader = DataDownloader(api=mock_client)
