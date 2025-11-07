@@ -128,6 +128,10 @@ outputs/
 *.csv
 *.parquet
 *.html
+examples/iniamet_cache/
+examples/*.html
+examples/*.csv
+examples/*.parquet
 
 # API Keys and sensitive config
 .iniamet/
@@ -140,6 +144,14 @@ secrets.yaml
 test_output/
 temp/
 tmp/
+
+# Internal/development documentation
+PROJECT_SUMMARY.md
+FUNCTION_REFERENCE.md
+GITHUB_TESTS_FIX.md
+TEST_STATUS.md
+PUBLISHING.md
+GITHUB_SETUP.md
 
 # IDE
 .idea/
