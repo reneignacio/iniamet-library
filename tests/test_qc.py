@@ -24,7 +24,7 @@ class TestQualityControl:
         })
         
         qc = QualityControl()
-        result = qc.check_extreme_values(data, 'temperatura')
+        result = qc.detect_extreme_values(data, 'temperatura')
         
         # Should detect 2 extreme values
         assert result['extreme_count'] >= 2

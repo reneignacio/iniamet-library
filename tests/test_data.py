@@ -30,7 +30,7 @@ class TestDataDownloader:
         mock_api.return_value = mock_client
         
         downloader = DataDownloader(api=mock_client)
-        result = downloader.download(
+        result = downloader.get_data(
             station="INIA-47",
             variable=2002,
             start_date=datetime(2024, 9, 1),
@@ -59,7 +59,7 @@ class TestDataDownloader:
         mock_api.return_value = mock_client
         
         downloader = DataDownloader(api=mock_client)
-        result = downloader.download(
+        result = downloader.get_data(
             station="INIA-47",
             variable=2002,
             start_date=datetime(2024, 9, 1),
@@ -86,7 +86,7 @@ class TestDataProcessing:
         mock_api.return_value = mock_client
         
         downloader = DataDownloader(api=mock_client)
-        result = downloader.download(
+        result = downloader.get_data(
             station="INIA-47",
             variable=2002,
             start_date=datetime(2024, 9, 1),

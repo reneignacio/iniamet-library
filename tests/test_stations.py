@@ -12,15 +12,15 @@ class TestStationManager:
     @patch('iniamet.stations.APIClient')
     def test_station_manager_initialization(self, mock_api):
         """Test StationManager initialization."""
-        manager = StationManager(api=mock_client)
+        manager = StationManager(api=mock_api())
         assert manager is not None
     
     @patch('iniamet.stations.APIClient')
     def test_get_all_stations(self, mock_api):
         """Test getting all stations."""
         mock_client = Mock()
-        mock_client.get_stations.return_value = {
-            'estaciones': [
+        mock_client.get_stations.return_value = [
+            
                 {
                     'codigo': 'INIA-47',
                     'nombre': 'Chillán',
@@ -41,8 +41,8 @@ class TestStationManager:
     def test_filter_by_region(self, mock_api):
         """Test filtering stations by region."""
         mock_client = Mock()
-        mock_client.get_stations.return_value = {
-            'estaciones': [
+        mock_client.get_stations.return_value = [
+            
                 {'codigo': 'INIA-47', 'nombre': 'Chillán', 'region': 'Ñuble'},
                 {'codigo': 'INIA-139', 'nombre': 'Talca', 'region': 'Maule'}
             ]
@@ -58,15 +58,15 @@ class TestStationManager:
     def test_get_station_by_code(self, mock_api):
         """Test getting single station by code."""
         mock_client = Mock()
-        mock_client.get_stations.return_value = {
-            'estaciones': [
+        mock_client.get_stations.return_value = [
+            
                 {'codigo': 'INIA-47', 'nombre': 'Chillán', 'region': 'Ñuble'}
             ]
         }
         mock_api.return_value = mock_client
         
         manager = StationManager(api=mock_client)
-        station = manager.get_station('INIA-47')
+        station = manager.get_stations('INIA-47')
         
         assert station is not None
 
@@ -78,8 +78,8 @@ class TestStationFiltering:
     def test_filter_by_coordinates(self, mock_api):
         """Test filtering stations by coordinates."""
         mock_client = Mock()
-        mock_client.get_stations.return_value = {
-            'estaciones': [
+        mock_client.get_stations.return_value = [
+            
                 {
                     'codigo': 'INIA-47',
                     'nombre': 'Chillán',
