@@ -15,7 +15,7 @@ pip install -e .
 ## Quick Start
 
 ```python
-from iniamet import INIAClient
+from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA
 
 # Initialize
 client = INIAClient()
@@ -23,10 +23,10 @@ client = INIAClient()
 # Get stations
 stations = client.get_stations(region="R16")  # Ñuble
 
-# Download data
+# Download data (v0.2.0+: use constants for readability)
 data = client.get_data(
     station="INIA-47",
-    variable=2002,
+    variable=VAR_TEMPERATURA_MEDIA,  # Recommended: named constant
     start_date="2024-09-01",
     end_date="2024-09-30"
 )
@@ -148,25 +148,39 @@ stations = client.get_stations(region="R16", station_type="INIA")
 ### Variable Validation
 
 ```python
+from iniamet import VAR_TEMPERATURA_MEDIA, get_variable_info, is_valid_variable_id
+
 # Check if variable exists for station
 is_valid = client.validate_station_variable(
     station="INIA-47",
-    variable=2002
+    variable=VAR_TEMPERATURA_MEDIA  # Or use: 2002 (both work!)
 )
 
-# Find variable ID by name
-from iniamet.stations import StationManager
-manager = client.station_manager
-var_id = manager.find_variable_id("INIA-47", "temperatura")
+# Get variable info
+info = get_variable_info(VAR_TEMPERATURA_MEDIA)
+print(f"{info['nombre']}: {info['unidad']}")
+
+# Validate variable ID
+if is_valid_variable_id(2002):
+    print("Valid variable!")
+
+# ⚠️ BACKWARD COMPATIBILITY: Both forms work identically
+var_id = 2002  # Old syntax
+var_id = VAR_TEMPERATURA_MEDIA  # New syntax (recommended)
 ```
 
 ## Context Manager Usage
 
 ```python
+from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA
+
 # Automatic cleanup
 with INIAClient() as client:
     stations = client.get_stations()
-    data = client.get_data("INIA-47", 2002, "2024-09-01", "2024-09-30")
+    
+    # Both syntaxes work!
+    data = client.get_data("INIA-47", VAR_TEMPERATURA_MEDIA, "2024-09-01", "2024-09-30")
+    # Or: data = client.get_data("INIA-47", 2002, "2024-09-01", "2024-09-30")
 # Client automatically closed
 ```
 
@@ -190,7 +204,9 @@ except Exception as e:
 2. **Batch downloads** instead of individual requests
 3. **Filter stations** before downloading to reduce API calls
 4. **Use daily aggregation** when sub-daily data not needed
-5. **Set appropriate delays** in bulk downloads to avoid rate limiting
+5. **Set appusing_variable_constants.py` - New v0.2.0 features demo
+- `examples/backward_compatibility_demo.py` - Backward compatibility demonstration
+- `examples/ropriate delays** in bulk downloads to avoid rate limiting
 
 ## Examples Directory
 

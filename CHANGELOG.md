@@ -14,9 +14,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `list_all_variables()`: Get DataFrame with all available variables
   - `get_variable_id_by_name()`: Find variable ID by name (fuzzy search)
   - `is_valid_variable_id()`: Validate if a variable ID exists
+  - `get_variable_info()`: Get metadata for a specific variable
 - **Enhanced Documentation**: Complete docstrings with examples for all public functions
 - **Best Practices Guide**: New documentation file explaining improvements ([docs/BEST_PRACTICES.md](docs/BEST_PRACTICES.md))
-- **Example Script**: `examples/using_variable_constants.py` demonstrating new features
+- **Example Scripts**: 
+  - `examples/using_variable_constants.py` - Comprehensive v0.2.0 features demo
+  - `examples/backward_compatibility_demo.py` - Demonstrates backward compatibility
+- **Test Suite**: `tests/test_backward_compatibility.py` - Automated compatibility tests
+
+### ✅ Backward Compatibility
+
+**ZERO BREAKING CHANGES** - All v0.1.x code continues working indefinitely:
+
+- ✅ Old syntax (magic numbers like `2002`) still works
+- ✅ New syntax (constants like `VAR_TEMPERATURA_MEDIA`) works identically
+- ✅ Both syntaxes can be mixed in the same project
+- ✅ All features support both syntaxes (aggregation, caching, regional downloads, etc.)
+- ✅ **No migration required** - Use constants for new code, keep existing code as-is
+
+```python
+# ✅ OLD (v0.1.x) - Still works forever!
+client.get_data('INIA-47', 2002, '2024-01-01', '2024-01-31')
+
+# ✅ NEW (v0.2.0+) - More readable (recommended)
+client.get_data('INIA-47', VAR_TEMPERATURA_MEDIA, '2024-01-01', '2024-01-31')
+```
 
 ### Changed 🔄
 - **Corrected Variable IDs**: Fixed mapping to match INIA API v2 response

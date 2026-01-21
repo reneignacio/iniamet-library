@@ -132,6 +132,21 @@ print(data.head())
 
 **🆕 New in v0.2.0:** Use named constants instead of magic numbers! See [Best Practices Guide](docs/BEST_PRACTICES.md) for details.
 
+### ⚠️ Backward Compatibility
+
+**Your existing code will continue working indefinitely!** Both syntaxes produce identical results:
+
+```python
+# ✅ OLD SYNTAX (v0.1.x) - Still works!
+data = client.get_data('INIA-47', 2002, '2024-01-01', '2024-01-31')
+
+# ✅ NEW SYNTAX (v0.2.0+) - Recommended for new code
+from iniamet import VAR_TEMPERATURA_MEDIA
+data = client.get_data('INIA-47', VAR_TEMPERATURA_MEDIA, '2024-01-01', '2024-01-31')
+```
+
+**💡 No migration required** - Use constants for new code, keep existing code as-is. See [Backward Compatibility Demo](examples/backward_compatibility_demo.py) for details.
+
 ## 📊 Regional Download Example
 
 ```python

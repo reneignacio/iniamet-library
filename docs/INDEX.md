@@ -10,6 +10,7 @@ This is the master index for all INIAMET library documentation. Use this to quic
 - **[README.md](../README.md)** - Main documentation with installation and basic usage
 - **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick reference guide with common operations
 - **[BEST_PRACTICES.md](BEST_PRACTICES.md)** - Best practices and code patterns (NEW in v0.2.0)
+- **[BACKWARD_COMPATIBILITY.md](BACKWARD_COMPATIBILITY.md)** - **Your old code keeps working forever!**
 
 ### For Development
 - **[CONTRIBUTING.md](../CONTRIBUTING.md)** - How to contribute to the project

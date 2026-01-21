@@ -335,16 +335,91 @@ from iniamet.utils import (
 
 ---
 
-## Migration Guide
+## 4. Backward Compatibility
+
+**Zero Breaking Changes** - INIAMET v0.2.0+ maintains **full backward compatibility** with v0.1.x.
+
+### Both Syntaxes Work Indefinitely
+
+```python
+from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA
+
+client = INIAClient()
+
+# ✅ OLD SYNTAX (v0.1.x) - Still works!
+data_old = client.get_data(
+    station='INIA-47',
+    variable=2002,  # Magic number
+    start_date='2024-01-01',
+    end_date='2024-01-31'
+)
+
+# ✅ NEW SYNTAX (v0.2.0+) - Recommended
+data_new = client.get_data(
+    station='INIA-47',
+    variable=VAR_TEMPERATURA_MEDIA,  # Named constant
+    start_date='2024-01-01',
+    end_date='2024-01-31'
+)
+
+# Both produce IDENTICAL results
+assert data_old.equals(data_new)  # ✅ True
+```
+
+### Mixing Syntaxes
+
+You can mix both syntaxes in the same project:
+
+```python
+# ✅ Old code (legacy) - no need to change
+temp = client.get_data(station, 2002, start, end)
+
+# ✅ New code (recommended) - use for new features
+precip = client.get_data(station, VAR_PRECIPITACION, start, end)
+```
+
+### All Features Support Both Syntaxes
+
+```python
+# Aggregation works with both
+daily_old = client.get_data(station, 2002, start, end, aggregation='daily')
+daily_new = client.get_data(station, VAR_TEMPERATURA_MEDIA, start, end, aggregation='daily')
+
+# Regional downloads work with both
+downloader.download_climate_data('Ñuble', 2002, start, end)  # Old
+downloader.download_climate_data('Ñuble', VAR_TEMPERATURA_MEDIA, start, end)  # New
+```
+
+### Future-Proof Guarantee
+
+✅ **Your existing code will work for years without changes**
+✅ **No forced migration required**
+✅ **Both syntaxes perform identically**
+✅ **All features support both syntaxes**
+
+💡 **Recommendation:**
+- Keep existing code as-is (no need to update)
+- Use named constants for NEW code (more readable)
+- Gradually migrate when convenient (not required)
+
+📝 **See also:** `examples/backward_compatibility_demo.py`
+
+---
+
+## 5. Migration Guide
+
+**⚠️ Important:** Migration is **OPTIONAL**. Your old code will continue working indefinitely.
 
 ### If you were using magic numbers:
 ```python
-# OLD
+# ✅ OLD - Still works! No need to change
 data = client.get_data("INIA-47", 2002, "2024-09-01", "2024-09-30")
 
-# NEW (but old way still works!)
+# ✅ NEW - Recommended for new code (more readable)
 from iniamet import VAR_TEMPERATURA_MEDIA
 data = client.get_data("INIA-47", VAR_TEMPERATURA_MEDIA, "2024-09-01", "2024-09-30")
+
+# Both produce IDENTICAL results
 ```
 
 ### If you were using RegionalDownloader for single station:
