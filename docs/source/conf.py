@@ -11,8 +11,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 project = 'INIAMET'
-copyright = '2025, René Castillo'
-author = 'René Castillo'
+copyright = '2025, René Sepúlveda'
+author = 'René Sepúlveda'
 release = '0.1.1'
 version = '0.1.1'
 

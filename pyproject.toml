@@ -4,16 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iniamet"
-version = "0.1.1"
+version = "0.2.0"
 description = "Unofficial Python library for accessing Chilean INIA agrometeorological station data"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 authors = [
-    {name = "René Castillo", email = "renecastillo@inia.cl"}
+    {name = "René Sepúlveda", email = "renecastillo@inia.cl"}
 ]
 maintainers = [
-    {name = "René Castillo", email = "renecastillo@inia.cl"}
+    {name = "René Sepúlveda", email = "renecastillo@inia.cl"}
 ]
 keywords = ["inia", "climate", "weather", "agrometeorological", "chile", "api", "meteorology", "unofficial"]
 classifiers = [

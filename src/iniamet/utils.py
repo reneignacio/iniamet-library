@@ -26,61 +26,103 @@ REGION_MAP = {
     "R16": "Ñuble"
 }
 
-# Variable metadata mapping
+# ============================================================================
+# VARIABLE ID CONSTANTS - Use these constants instead of magic numbers
+# ============================================================================
+# Precipitation
+VAR_PRECIPITACION = 2001
+
+# Temperature
+VAR_TEMPERATURA_MEDIA = 2002
+VAR_TEMPERATURA_SUELO_10CM = 2027
+VAR_TEMPERATURA_SUPERFICIE = 2077
+
+# Humidity
+VAR_HUMEDAD_RELATIVA = 2007
+
+# Wind
+VAR_VIENTO_DIRECCION = 2012
+VAR_VIENTO_VELOCIDAD_MEDIA = 2013
+VAR_VIENTO_VELOCIDAD_MAXIMA = 2014
+
+# Radiation
+VAR_RADIACION_MEDIA = 2022
+
+# Pressure
+VAR_PRESION_ATMOSFERICA = 2125
+
+# Other
+VAR_BATERIA_VOLTAJE = 2024
+
+# ============================================================================
+# VARIABLE METADATA - Complete information about each variable
+# ============================================================================
 VARIABLE_INFO = {
     2001: {
-        'nombre': 'Humedad Relativa',
-        'unidad': '%',
-        'color': 'blue',
-        'descripcion': 'Humedad relativa del aire'
-    },
-    2002: {
-        'nombre': 'Temperatura',
-        'unidad': '°C',
-        'color': 'red',
-        'descripcion': 'Temperatura del aire'
-    },
-    2003: {
         'nombre': 'Precipitación',
         'unidad': 'mm',
         'color': 'green',
         'descripcion': 'Precipitación acumulada'
     },
-    2004: {
-        'nombre': 'Radiación Solar',
-        'unidad': 'W/m²',
-        'color': 'orange',
-        'descripcion': 'Radiación solar global'
+    2002: {
+        'nombre': 'Temperatura del Aire Media',
+        'unidad': '°C',
+        'color': 'red',
+        'descripcion': 'Temperatura del aire media'
     },
-    2005: {
-        'nombre': 'Velocidad Viento',
-        'unidad': 'm/s',
-        'color': 'purple',
-        'descripcion': 'Velocidad del viento'
+    2007: {
+        'nombre': 'Humedad Relativa Media',
+        'unidad': '%',
+        'color': 'blue',
+        'descripcion': 'Humedad relativa del aire media'
     },
-    2006: {
-        'nombre': 'Dirección Viento',
+    2012: {
+        'nombre': 'Dirección del Viento',
         'unidad': '°',
         'color': 'cyan',
         'descripcion': 'Dirección del viento'
     },
-    2007: {
+    2013: {
+        'nombre': 'Velocidad Viento Media',
+        'unidad': 'm/s',
+        'color': 'purple',
+        'descripcion': 'Velocidad del viento media'
+    },
+    2014: {
+        'nombre': 'Velocidad Viento Máxima',
+        'unidad': 'm/s',
+        'color': 'purple',
+        'descripcion': 'Velocidad del viento máxima'
+    },
+    2022: {
+        'nombre': 'Radiación Media',
+        'unidad': 'W/m²',
+        'color': 'orange',
+        'descripcion': 'Radiación solar media'
+    },
+    2024: {
+        'nombre': 'Batería Voltaje Mínima',
+        'unidad': 'V',
+        'color': 'gray',
+        'descripcion': 'Voltaje mínimo de batería'
+    },
+    2027: {
+        'nombre': 'Temperatura Suelo 10cm Media',
+        'unidad': '°C',
+        'color': 'brown',
+        'descripcion': 'Temperatura del suelo a 10cm media'
+    },
+    2077: {
+        'nombre': 'Temperatura Superficie Media',
+        'unidad': '°C',
+        'color': 'pink',
+        'descripcion': 'Temperatura de superficie media'
+    },
+    2125: {
         'nombre': 'Presión Atmosférica',
-        'unidad': 'hPa',
+        'unidad': 'mbar',
         'color': 'brown',
         'descripcion': 'Presión atmosférica'
-    },
-    2008: {
-        'nombre': 'Temperatura Mínima',
-        'unidad': '°C',
-        'color': 'Blues',
-        'descripcion': 'Temperatura mínima del aire'
-    },
-    2009: {
-        'nombre': 'Temperatura Máxima',
-        'unidad': '°C',
-        'color': 'Reds',
-        'descripcion': 'Temperatura máxima del aire'
     }
 }
 
@@ -90,15 +132,22 @@ def get_variable_info(variable_id: int) -> dict:
     Get metadata for a variable ID.
     
     Args:
-        variable_id: Variable ID from INIA API
+        variable_id: Variable ID from INIA API (e.g., 2002, 2001)
         
     Returns:
-        Dictionary with variable metadata (nombre, unidad, color, descripcion)
+        Dictionary with variable metadata:
+        - nombre: Human-readable name
+        - unidad: Measurement unit
+        - color: Suggested color for plotting
+        - descripcion: Detailed description
         
     Example:
-        >>> info = get_variable_info(2002)
+        >>> from iniamet.utils import get_variable_info, VAR_TEMPERATURA_MEDIA
+        >>> info = get_variable_info(VAR_TEMPERATURA_MEDIA)
         >>> print(info['nombre'])
-        'Temperatura'
+        'Temperatura del Aire Media'
+        >>> print(info['unidad'])
+        '°C'
     """
     if variable_id not in VARIABLE_INFO:
         return {
@@ -108,6 +157,83 @@ def get_variable_info(variable_id: int) -> dict:
             'descripcion': f'Variable desconocida (ID: {variable_id})'
         }
     return VARIABLE_INFO[variable_id]
+
+
+def is_valid_variable_id(variable_id: int) -> bool:
+    """
+    Check if a variable ID is valid/known.
+    
+    Args:
+        variable_id: Variable ID to validate
+        
+    Returns:
+        True if variable ID exists in VARIABLE_INFO
+        
+    Example:
+        >>> from iniamet.utils import is_valid_variable_id, VAR_TEMPERATURA_MEDIA
+        >>> is_valid_variable_id(VAR_TEMPERATURA_MEDIA)
+        True
+        >>> is_valid_variable_id(9999)
+        False
+    """
+    return variable_id in VARIABLE_INFO
+
+
+def list_all_variables() -> 'pd.DataFrame':
+    """
+    Get a DataFrame with all known variables.
+    
+    Returns:
+        DataFrame with columns: variable_id, nombre, unidad, descripcion
+        
+    Example:
+        >>> from iniamet.utils import list_all_variables
+        >>> vars_df = list_all_variables()\n        >>> print(vars_df[['variable_id', 'nombre', 'unidad']])
+    """
+    import pandas as pd
+    
+    data = []
+    for var_id, info in VARIABLE_INFO.items():
+        data.append({
+            'variable_id': var_id,
+            'nombre': info['nombre'],
+            'unidad': info['unidad'],
+            'descripcion': info['descripcion']
+        })
+    
+    return pd.DataFrame(data).sort_values('variable_id').reset_index(drop=True)
+
+
+def get_variable_id_by_name(name: str) -> Optional[int]:
+    """
+    Find variable ID by searching for a name (fuzzy match).
+    
+    Args:
+        name: Variable name or partial name (e.g., "temperatura", "precipitacion")
+        
+    Returns:
+        Variable ID if found, None otherwise
+        
+    Example:
+        >>> from iniamet.utils import get_variable_id_by_name
+        >>> get_variable_id_by_name("temperatura")
+        2002
+        >>> get_variable_id_by_name("precipitacion")
+        2001
+    """
+    name_normalized = normalize_text(name)
+    
+    # Try exact match first
+    for var_id, info in VARIABLE_INFO.items():
+        if normalize_text(info['nombre']) == name_normalized:
+            return var_id
+    
+    # Try partial match
+    for var_id, info in VARIABLE_INFO.items():
+        if name_normalized in normalize_text(info['nombre']):
+            return var_id
+    
+    return None
 
 
 def normalize_text(text: str) -> str:

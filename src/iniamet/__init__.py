@@ -23,7 +23,7 @@ Example usage:
     >>> mapa = quick_temp_map(client, region='Ñuble', date='2025-10-12')
 """
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 __author__ = "INIA Climate Data Team"
 __license__ = "MIT"
 
@@ -32,7 +32,27 @@ from .stations import StationManager
 from .data import DataDownloader
 from .regional import RegionalDownloader
 from .qc import QualityControl, apply_quality_control, get_qc_report
-from .utils import get_region_name, get_variable_info, REGION_MAP, VARIABLE_INFO
+from .utils import (
+    get_region_name, 
+    get_variable_info, 
+    list_all_variables,
+    get_variable_id_by_name,
+    is_valid_variable_id,
+    REGION_MAP, 
+    VARIABLE_INFO,
+    # Variable ID constants for easy access
+    VAR_PRECIPITACION,
+    VAR_TEMPERATURA_MEDIA,
+    VAR_TEMPERATURA_SUELO_10CM,
+    VAR_TEMPERATURA_SUPERFICIE,
+    VAR_HUMEDAD_RELATIVA,
+    VAR_VIENTO_DIRECCION,
+    VAR_VIENTO_VELOCIDAD_MEDIA,
+    VAR_VIENTO_VELOCIDAD_MAXIMA,
+    VAR_RADIACION_MEDIA,
+    VAR_PRESION_ATMOSFERICA,
+    VAR_BATERIA_VOLTAJE
+)
 
 # Import visualization only if IPython is available (optional dependency)
 try:
@@ -57,6 +77,21 @@ __all__ = [
     "quick_temp_map",
     "get_region_name",
     "get_variable_info",
+    "list_all_variables",
+    "get_variable_id_by_name",
+    "is_valid_variable_id",
     "REGION_MAP",
     "VARIABLE_INFO",
+    # Variable ID constants
+    "VAR_PRECIPITACION",
+    "VAR_TEMPERATURA_MEDIA",
+    "VAR_TEMPERATURA_SUELO_10CM",
+    "VAR_TEMPERATURA_SUPERFICIE",
+    "VAR_HUMEDAD_RELATIVA",
+    "VAR_VIENTO_DIRECCION",
+    "VAR_VIENTO_VELOCIDAD_MEDIA",
+    "VAR_VIENTO_VELOCIDAD_MAXIMA",
+    "VAR_RADIACION_MEDIA",
+    "VAR_PRESION_ATMOSFERICA",
+    "VAR_BATERIA_VOLTAJE",
 ]

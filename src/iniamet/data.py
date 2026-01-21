@@ -37,20 +37,47 @@ class DataDownloader:
         variable: Union[int, str],
         start_date: Union[str, datetime],
         end_date: Union[str, datetime],
-        use_cache: bool = True
+        use_cache: bool = True,
+        aggregation: Optional[str] = None
     ) -> pd.DataFrame:
         """
-        Download time series data.
+        Download time series data with optional aggregation.
         
         Args:
-            station: Station code
-            variable: Variable ID
-            start_date: Start date
-            end_date: End date
-            use_cache: Use cached data if available
+            station: Station code (e.g., "INIA-47")
+            variable: Variable ID (e.g., 2002 for temperature) or name
+            start_date: Start date (YYYY-MM-DD or datetime)
+            end_date: End date (YYYY-MM-DD or datetime)
+            use_cache: Use cached data if available (default: True)
+            aggregation: Optional temporal aggregation:
+                - None or 'raw': Return raw data (default)
+                - 'D' or 'daily': Daily aggregation
+                - 'W': Weekly aggregation
+                - 'M': Monthly aggregation
+                - 'H': Hourly aggregation
+                - Any pandas resample rule
             
         Returns:
             DataFrame with columns: tiempo (datetime), valor (float)
+            If aggregation is applied, may include additional columns
+            depending on variable type (e.g., valor_min, valor_max for temperature)
+            
+        Raises:
+            ValueError: If dates are invalid or variable ID is unknown
+            
+        Example:
+            >>> from iniamet.data import DataDownloader
+            >>> from iniamet.utils import VAR_TEMPERATURA_MEDIA
+            >>> downloader = DataDownloader(api_client)
+            >>> 
+            >>> # Raw data (15-minute intervals)
+            >>> df = downloader.get_data('INIA-47', VAR_TEMPERATURA_MEDIA,
+            ...                          '2024-09-01', '2024-09-30')
+            >>> 
+            >>> # Daily aggregation
+            >>> df_daily = downloader.get_data('INIA-47', VAR_TEMPERATURA_MEDIA,
+            ...                                 '2024-09-01', '2024-09-30',
+            ...                                 aggregation='D')
         """
         # Parse dates
         start_dt = parse_date(start_date)
@@ -98,12 +125,66 @@ class DataDownloader:
         if not df.empty:
             df = df.sort_values('tiempo').reset_index(drop=True)
         
-        # Save to cache
-        if self.cache and not df.empty:
+        # Apply aggregation if requested
+        if aggregation and aggregation != 'raw' and not df.empty:
+            df = self._apply_aggregation(df, int(var_str), aggregation)
+        
+        # Save to cache (raw data only)
+        if self.cache and not df.empty and (aggregation is None or aggregation == 'raw'):
             self.cache.save_data(station, var_str, df)
         
         logger.info(f"Downloaded {len(df)} records")
         return df
+    
+    def _apply_aggregation(
+        self,
+        df: pd.DataFrame,
+        variable_id: int,
+        rule: str
+    ) -> pd.DataFrame:
+        """
+        Apply temporal aggregation to time series data.
+        
+        Args:
+            df: Raw data DataFrame with 'tiempo' and 'valor' columns
+            variable_id: Variable ID to determine aggregation method
+            rule: Pandas resample rule (e.g., 'D', 'W', 'M')
+            
+        Returns:
+            Aggregated DataFrame
+        """
+        if df.empty:
+            return df
+        
+        df = df.copy()
+        df.set_index('tiempo', inplace=True)
+        
+        # Import constants to avoid magic numbers
+        from .utils import (
+            VAR_TEMPERATURA_MEDIA, VAR_TEMPERATURA_SUELO_10CM, 
+            VAR_TEMPERATURA_SUPERFICIE, VAR_PRECIPITACION
+        )
+        
+        # Temperature variables: compute min/max/mean
+        if variable_id in [VAR_TEMPERATURA_MEDIA, VAR_TEMPERATURA_SUELO_10CM, 
+                          VAR_TEMPERATURA_SUPERFICIE]:
+            df_agg = df.resample(rule).agg({
+                'valor': ['mean', 'min', 'max']
+            })
+            df_agg.columns = ['valor_media', 'valor_min', 'valor_max']
+            # Keep 'valor' as the mean for backwards compatibility
+            df_agg['valor'] = df_agg['valor_media']
+        
+        # Precipitation: sum
+        elif variable_id == VAR_PRECIPITACION:
+            df_agg = df.resample(rule).sum()
+        
+        # Others: mean
+        else:
+            df_agg = df.resample(rule).mean()
+        
+        df_agg = df_agg.reset_index()
+        return df_agg
     
     def bulk_download(
         self,

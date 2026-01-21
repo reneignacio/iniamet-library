@@ -89,7 +89,7 @@ client = INIAClient(api_key='your-api-key-here')
 ## 🚀 Quick Start
 
 ```python
-from iniamet import INIAClient
+from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA
 
 # Initialize client
 client = INIAClient()
@@ -106,18 +106,20 @@ print(f"Ñuble stations: {len(nuble_stations)}")
 variables = client.get_variables("INIA-47")
 print(variables[['variable_id', 'nombre', 'unidad']])
 
-# Download data
+# Download data (use constants instead of magic numbers!)
 from datetime import datetime
 
 data = client.get_data(
     station="INIA-47",
-    variable=2002,  # Temperatura del aire
+    variable=VAR_TEMPERATURA_MEDIA,  # Clear and self-documenting!
     start_date=datetime(2024, 9, 1),
     end_date=datetime(2024, 9, 30)
 )
 
 print(data.head())
 ```
+
+**🆕 New in v0.2.0:** Use named constants instead of magic numbers! See [Best Practices Guide](docs/BEST_PRACTICES.md) for details.
 
 ## 📊 Regional Download Example
 

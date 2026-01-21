@@ -36,11 +36,16 @@ data = client.get_data(
 
 | ID | Variable | Unit |
 |----|----------|------|
-| 2002 | Temperatura del Aire Media | °C |
 | 2001 | Precipitación | mm |
+| 2002 | Temperatura del Aire Media | °C |
 | 2007 | Humedad Relativa Media | % |
+| 2012 | Dirección del Viento | ° |
 | 2013 | Velocidad Viento Media | m/s |
+| 2014 | Velocidad Viento Máxima | m/s |
 | 2022 | Radiación Media | W/m² |
+| 2024 | Batería Voltaje Mínima | V |
+| 2027 | Temperatura Suelo 10cm Media | °C |
+| 2077 | Temperatura Superficie Media | °C |
 | 2125 | Presión Atmosférica | mbar |
 
 ## Region Codes

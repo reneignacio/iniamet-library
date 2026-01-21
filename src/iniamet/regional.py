@@ -10,7 +10,13 @@ from datetime import datetime
 import pandas as pd
 
 from .client import INIAClient
-from .utils import parse_date, normalize_text
+from .utils import (
+    parse_date, normalize_text,
+    VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION, VAR_HUMEDAD_RELATIVA,
+    VAR_VIENTO_VELOCIDAD_MEDIA, VAR_VIENTO_VELOCIDAD_MAXIMA, VAR_VIENTO_DIRECCION,
+    VAR_RADIACION_MEDIA, VAR_PRESION_ATMOSFERICA,
+    VAR_TEMPERATURA_SUELO_10CM, VAR_TEMPERATURA_SUPERFICIE, VAR_BATERIA_VOLTAJE
+)
 
 logger = logging.getLogger(__name__)
 
@@ -18,14 +24,19 @@ logger = logging.getLogger(__name__)
 class RegionalDownloader:
     """High-level downloader for regional climate data."""
     
-    # Common variable mappings
+    # Common variable mappings - Use string names or direct variable ID constants
     VARIABLE_MAPPING = {
-        'temperature': 2002,  # Temperatura del Aire Media
-        'precipitation': 2001,  # Precipitación
-        'humidity': 2007,  # Humedad Relativa Media
-        'wind_speed': 2013,  # Velocidad Viento Media
-        'radiation': 2022,  # Radiación Media
-        'pressure': 2125,  # Presión Atmosférica
+        'temperature': VAR_TEMPERATURA_MEDIA,
+        'precipitation': VAR_PRECIPITACION,
+        'humidity': VAR_HUMEDAD_RELATIVA,
+        'wind_speed': VAR_VIENTO_VELOCIDAD_MEDIA,
+        'wind_speed_max': VAR_VIENTO_VELOCIDAD_MAXIMA,
+        'wind_direction': VAR_VIENTO_DIRECCION,
+        'radiation': VAR_RADIACION_MEDIA,
+        'pressure': VAR_PRESION_ATMOSFERICA,
+        'soil_temperature': VAR_TEMPERATURA_SUELO_10CM,
+        'surface_temperature': VAR_TEMPERATURA_SUPERFICIE,
+        'battery_voltage': VAR_BATERIA_VOLTAJE,
     }
     
     def __init__(
@@ -130,22 +141,26 @@ class RegionalDownloader:
             # Download each variable
             for var_id in var_ids:
                 try:
+                    # Convert aggregation format
+                    agg_rule = None
+                    if aggregation and aggregation != 'raw':
+                        if aggregation == 'daily':
+                            agg_rule = 'D'
+                        else:
+                            agg_rule = aggregation
+                    
+                    # Use client's built-in aggregation
                     df = self.client.get_data(
                         station=station_code,
                         variable=var_id,
                         start_date=start_date,
-                        end_date=end_date
+                        end_date=end_date,
+                        aggregation=agg_rule
                     )
                     
                     if df.empty:
                         logger.warning(f"  No data for variable {var_id}")
                         continue
-                    
-                    # Apply aggregation
-                    if aggregation == 'daily':
-                        df = self._aggregate_daily(df, var_id)
-                    elif aggregation != 'raw':
-                        df = self._aggregate_custom(df, aggregation)
                     
                     # Add variable columns to station data
                     for col in df.columns:

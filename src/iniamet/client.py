@@ -108,36 +108,58 @@ class INIAClient:
         variable: Union[int, str],
         start_date: Union[str, datetime],
         end_date: Union[str, datetime],
-        use_cache: bool = True
+        use_cache: bool = True,
+        aggregation: Optional[str] = None
     ) -> pd.DataFrame:
         """
         Download time series data for a station and variable.
         
         Args:
-            station: Station code
+            station: Station code (e.g., "INIA-47")
             variable: Variable ID (int) or name (str)
+                     Use constants from utils: VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION, etc.
             start_date: Start date (YYYY-MM-DD or datetime)
             end_date: End date (YYYY-MM-DD or datetime)
-            use_cache: Use cached data if available
+            use_cache: Use cached data if available (default: True)
+            aggregation: Optional temporal aggregation:
+                - None or 'raw': Return raw data (default)
+                - 'D' or 'daily': Daily aggregation
+                - 'W': Weekly, 'M': Monthly
+                - Any pandas resample rule
             
         Returns:
-            DataFrame with columns: tiempo, valor
+            DataFrame with columns: tiempo, valor (and valor_min, valor_max for temperature)
             
         Example:
-            >>> data = client.get_data(
+            >>> from iniamet import INIAClient
+            >>> from iniamet.utils import VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION
+            >>> 
+            >>> client = INIAClient()
+            >>> 
+            >>> # Raw temperature data (15-min intervals)
+            >>> temp = client.get_data(
             ...     station="INIA-47",
-            ...     variable=2002,
+            ...     variable=VAR_TEMPERATURA_MEDIA,
             ...     start_date="2024-09-01",
             ...     end_date="2024-09-30"
             ... )
-            >>> print(data.head())
+            >>> 
+            >>> # Daily precipitation totals
+            >>> precip = client.get_data(
+            ...     station="INIA-47",
+            ...     variable=VAR_PRECIPITACION,
+            ...     start_date="2024-09-01",
+            ...     end_date="2024-09-30",
+            ...     aggregation='D'
+            ... )
         """
         return self.data_downloader.get_data(
             station=station,
             variable=variable,
             start_date=start_date,
             end_date=end_date,
-            use_cache=use_cache
+            use_cache=use_cache,
+            aggregation=aggregation
         )
     
     def bulk_download(

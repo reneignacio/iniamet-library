@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-01-21
+
+### Added ✨
+- **Variable ID Constants**: Named constants for all variables (e.g., `VAR_TEMPERATURA_MEDIA`, `VAR_PRECIPITACION`)
+- **Aggregation Support in INIAClient**: `get_data()` now supports temporal aggregation (daily, weekly, monthly)
+- **Helper Functions for Variable Discovery**:
+  - `list_all_variables()`: Get DataFrame with all available variables
+  - `get_variable_id_by_name()`: Find variable ID by name (fuzzy search)
+  - `is_valid_variable_id()`: Validate if a variable ID exists
+- **Enhanced Documentation**: Complete docstrings with examples for all public functions
+- **Best Practices Guide**: New documentation file explaining improvements ([docs/BEST_PRACTICES.md](docs/BEST_PRACTICES.md))
+- **Example Script**: `examples/using_variable_constants.py` demonstrating new features
+
+### Changed 🔄
+- **Corrected Variable IDs**: Fixed mapping to match INIA API v2 response
+  - 2001: Precipitación (was incorrectly Humedad Relativa)
+  - 2007: Humedad Relativa Media (was incorrectly Presión Atmosférica)
+  - 2125: Presión Atmosférica (was not mapped)
+- **Updated VARIABLE_INFO**: Expanded to include all 11 variables from API
+- **RegionalDownloader**: Now uses constants and delegates aggregation to `INIAClient`
+- **Improved Type Hints**: More complete and accurate type annotations
+- **Better Examples**: Updated all examples to use new constants and best practices
+
+### Fixed 🐛
+- Variable ID mappings now match actual INIA API v2 response structure
+- Temperature aggregation now properly returns `valor_min`, `valor_max`, `valor_media`
+- Precipitation aggregation uses sum instead of mean
+- Cache now only stores raw data (not aggregated data)
+
+### Documentation 📚
+- Added comprehensive variable constant documentation
+- Improved docstrings with clear parameter descriptions
+- Added migration guide for existing code
+- Examples now demonstrate self-documenting code practices
+
 ## [Unreleased]
 
 ### Fixed
