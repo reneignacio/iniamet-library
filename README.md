@@ -14,12 +14,23 @@ Access data from 400+ weather stations across Chile with a simple, intuitive API
 ## 🌟 Features
 
 - **High-Level API**: Simple, intuitive functions to query stations and download data
+- **Named Constants**: Use `VAR_TEMPERATURA_MEDIA` instead of magic numbers (new in v0.2.0)
+- **Built-in Aggregation**: Daily, weekly, monthly temporal aggregation support (new in v0.2.0)
 - **Smart Station Management**: Automatically handles different station code formats
 - **Regional Filtering**: Filter stations by Chilean regions (R01-R16)
 - **Data Caching**: Built-in caching system for faster repeated queries
 - **Type Safety**: Full type hints for better IDE support
 - **pandas Integration**: Returns data as pandas DataFrames
 - **Comprehensive Variables**: Temperature, precipitation, humidity, wind, radiation, and more
+
+## 📚 Documentation
+
+- **[Documentation Index](docs/INDEX.md)** - Complete documentation navigation
+- **[Quick Reference](docs/QUICK_REFERENCE.md)** - Quick start guide with common operations
+- **[Best Practices](docs/BEST_PRACTICES.md)** - Recommended patterns and examples (v0.2.0)
+- **[Recipes](docs/RECIPES.md)** - Code recipes for common tasks
+- **[Examples](examples/)** - Working code examples
+- **[Changelog](CHANGELOG.md)** - Version history and changes
 
 ## 📦 Installation
 

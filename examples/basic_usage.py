@@ -6,9 +6,12 @@ This example demonstrates the fundamental operations:
 - Get stations
 - Download data
 - Basic analysis
+
+NOTE: This example uses VAR_TEMPERATURA_MEDIA constant instead of magic number 2002.
+      See examples/using_variable_constants.py for all new features in v0.2.0.
 """
 
-from iniamet import INIAClient
+from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA
 from datetime import datetime, timedelta
 
 def main():
@@ -39,9 +42,10 @@ def main():
     end_date = datetime.now()
     start_date = end_date - timedelta(days=7)
     
+    # Use VAR_TEMPERATURA_MEDIA constant instead of magic number 2002
     data = client.get_data(
         station="INIA-47",
-        variable=2002,  # Air temperature
+        variable=VAR_TEMPERATURA_MEDIA,  # Clear and self-documenting!
         start_date=start_date,
         end_date=end_date
     )
@@ -58,6 +62,10 @@ def main():
     print(f"   Std:  {data['valor'].std():.2f}°C")
     
     print("\n✅ Example completed successfully!")
+    print("\n💡 TIP: See examples/using_variable_constants.py for more advanced features:")
+    print("   - Daily/weekly/monthly aggregation")
+    print("   - Variable discovery functions")
+    print("   - All available constants")
 
 if __name__ == "__main__":
     main()
