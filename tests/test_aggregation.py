@@ -21,7 +21,7 @@ import pandas as pd
 from unittest.mock import MagicMock
 
 from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION, VAR_HUMEDAD_RELATIVA
-from tests.conftest import FAKE_STATIONS, FAKE_VARIABLES_INIA47, _make_fake_data
+from helpers import FAKE_STATIONS, FAKE_VARIABLES_INIA47, _make_fake_data
 
 
 def _client_con_datos(n_registros=96, var_id=2002, start="2025-01-01"):

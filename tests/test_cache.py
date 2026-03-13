@@ -21,7 +21,7 @@ from datetime import datetime
 from iniamet.cache import CacheManager
 from iniamet import INIAClient
 from unittest.mock import patch
-from tests.conftest import FAKE_STATIONS, FAKE_VARIABLES_INIA47, _make_fake_data
+from helpers import FAKE_STATIONS, FAKE_VARIABLES_INIA47, _make_fake_data
 
 
 TEST_CACHE_DIR = "./test_iniamet_cache_tmp"

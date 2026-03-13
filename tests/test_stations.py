@@ -17,7 +17,7 @@ import pandas as pd
 from unittest.mock import MagicMock
 
 from iniamet import INIAClient
-from tests.conftest import FAKE_STATIONS
+from helpers import FAKE_STATIONS
 
 
 def _make_client():

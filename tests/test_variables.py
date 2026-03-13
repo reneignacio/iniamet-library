@@ -32,7 +32,7 @@ from iniamet import (
     get_variable_info,
     get_variable_id_by_name,
 )
-from tests.conftest import FAKE_STATIONS, FAKE_VARIABLES_INIA47
+from helpers import FAKE_STATIONS, FAKE_VARIABLES_INIA47
 
 
 def _make_client():

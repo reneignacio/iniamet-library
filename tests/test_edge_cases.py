@@ -27,7 +27,7 @@ from iniamet.utils import (
 from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA
 from iniamet.data import DataDownloader
 from iniamet.api_client import APIClient
-from tests.conftest import FAKE_STATIONS, FAKE_VARIABLES_INIA47, _make_fake_data
+from helpers import FAKE_STATIONS, FAKE_VARIABLES_INIA47, _make_fake_data
 
 
 # ========================================================================

@@ -18,7 +18,7 @@ from unittest.mock import MagicMock, patch
 from datetime import datetime
 
 from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION
-from tests.conftest import FAKE_STATIONS, FAKE_VARIABLES_INIA47, _make_fake_data
+from helpers import FAKE_STATIONS, FAKE_VARIABLES_INIA47, _make_fake_data
 
 
 def _make_client(data_response=None):
