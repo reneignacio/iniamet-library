@@ -76,12 +76,19 @@ class DataDownloader:
             ...     aggregation="diario"
             ... )
         """
-        # Normalize aggregation aliases (pandas >= 3.0 uses lowercase)
+        # Normalize aggregation aliases based on pandas version
+        # pandas >= 2.2.0 deprecated 'M' and 'H' in favor of 'ME' and 'h'
+        pd_version = pd.__version__.split('.')
+        pd_major_minor = float(f"{pd_version[0]}.{pd_version[1]}")
+        
+        c_month = 'ME' if pd_major_minor >= 2.2 else 'M'
+        c_hour = 'h' if pd_major_minor >= 2.2 else 'H'
+        
         _AGG_ALIASES = {
             'daily': 'D', 'diario': 'D', 'd': 'D',
-            'hourly': 'h', 'horario': 'h', 'h': 'h',
+            'hourly': c_hour, 'horario': c_hour, 'h': c_hour,
             'weekly': 'W', 'semanal': 'W', 'w': 'W',
-            'monthly': 'ME', 'mensual': 'ME', 'm': 'ME', 'me': 'ME',
+            'monthly': c_month, 'mensual': c_month, 'm': c_month, 'me': c_month,
             'raw': None, 'crudo': None,
         }
         if aggregation and aggregation.lower() in _AGG_ALIASES:
