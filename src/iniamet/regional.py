@@ -1,7 +1,8 @@
-"""
-Regional downloader for bulk climate data downloads.
+"""Módulo de descarga regional.
 
-Simplifies downloading data for entire regions with common climate variables.
+Simplifica la descarga masiva de datos climáticos para una región
+completa, consolidando múltiples estaciones y variables en un
+único DataFrame.
 """
 
 import logging
@@ -11,7 +12,6 @@ import pandas as pd
 
 from .client import INIAClient
 from .utils import (
-    parse_date, normalize_text,
     VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION, VAR_HUMEDAD_RELATIVA,
     VAR_VIENTO_VELOCIDAD_MEDIA, VAR_VIENTO_VELOCIDAD_MAXIMA, VAR_VIENTO_DIRECCION,
     VAR_RADIACION_MEDIA, VAR_PRESION_ATMOSFERICA,
@@ -22,7 +22,30 @@ logger = logging.getLogger(__name__)
 
 
 class RegionalDownloader:
-    """High-level downloader for regional climate data."""
+    """Descargador de datos climáticos a nivel regional.
+
+    Descarga y consolida datos de todas las estaciones de una región
+    en un solo DataFrame.
+
+    Attributes:
+        VARIABLE_MAPPING: Diccionario que mapea nombres en inglés a IDs
+            de variable. Claves disponibles: ``'temperature'``,
+            ``'precipitation'``, ``'humidity'``, ``'wind_speed'``,
+            ``'wind_speed_max'``, ``'wind_direction'``, ``'radiation'``,
+            ``'pressure'``, ``'soil_temperature'``,
+            ``'surface_temperature'``, ``'battery_voltage'``.
+        stations: ``pd.DataFrame`` con las estaciones de la región
+            (se carga automáticamente al inicializar).
+
+    Example:
+        >>> from iniamet import RegionalDownloader
+        >>> rd = RegionalDownloader(region="Ñuble")
+        >>> df = rd.download_climate_data(
+        ...     "2025-01-01", "2025-01-31",
+        ...     variables=["temperature", "precipitation"]
+        ... )
+        >>> rd.save_to_csv(df)
+    """
     
     # Common variable mappings - Use string names or direct variable ID constants
     VARIABLE_MAPPING = {
@@ -44,12 +67,16 @@ class RegionalDownloader:
         region: str,
         client: Optional[INIAClient] = None
     ):
-        """
-        Initialize regional downloader.
-        
+        """Inicializa el descargador regional.
+
+        Al crear la instancia se descargan automáticamente las estaciones
+        de la región indicada.
+
         Args:
-            region: Region code (e.g., "R16") or name (e.g., "Ñuble")
-            client: Optional INIAClient instance (creates new if not provided)
+            region: Código de región (ej. ``"R16"``) o nombre
+                (ej. ``"Ñuble"``).
+            client: Instancia de :class:`~iniamet.client.INIAClient`.
+                Si es ``None`` se crea una nueva automáticamente.
         """
         self.region = region
         self.client = client or INIAClient()
@@ -70,27 +97,30 @@ class RegionalDownloader:
         aggregation: str = 'daily',
         station_filter: Optional[List[str]] = None
     ) -> pd.DataFrame:
-        """
-        Download and consolidate climate data for region.
-        
+        """Descarga y consolida datos climáticos de la región.
+
         Args:
-            start_date: Start date (YYYY-MM-DD or datetime)
-            end_date: End date (YYYY-MM-DD or datetime)
-            variables: List of variable names (e.g., ['temperature', 'precipitation'])
-                      If None, downloads temperature and precipitation
-            aggregation: 'daily', 'raw', or pandas resample rule (e.g., 'W', 'M')
-            station_filter: Optional list of specific station codes to download
-            
+            start_date: Fecha inicio (``"YYYY-MM-DD"`` o ``datetime``).
+            end_date: Fecha fin (``"YYYY-MM-DD"`` o ``datetime``).
+            variables: Lista de nombres de variables en inglés
+                (ej. ``["temperature", "precipitation"]``).
+                Si es ``None`` se descargan temperatura y precipitación.
+                Ver ``VARIABLE_MAPPING`` para la lista completa.
+            aggregation: Agregación temporal:
+                ``"daily"`` (por defecto), ``"raw"``, ``"W"``, ``"M"``.
+            station_filter: Lista opcional de códigos de estación
+                específicos a descargar.
+
         Returns:
-            Consolidated DataFrame with all stations and variables
-            
+            ``pd.DataFrame`` consolidado con columnas: ``estacion_codigo``,
+            ``estacion_nombre``, ``region``, ``latitud``, ``longitud``,
+            ``elevacion``, ``tiempo``, ``valor``, etc.
+
         Example:
-            >>> downloader = RegionalDownloader("R16")
-            >>> df = downloader.download_climate_data(
-            ...     start_date="2024-09-01",
-            ...     end_date="2024-09-30",
-            ...     variables=['temperature', 'precipitation'],
-            ...     aggregation='daily'
+            >>> df = rd.download_climate_data(
+            ...     "2025-01-01", "2025-01-31",
+            ...     variables=["temperature", "precipitation"],
+            ...     aggregation="daily"
             ... )
         """
         # Default variables
@@ -204,7 +234,7 @@ class RegionalDownloader:
         return df_final
     
     def _aggregate_daily(self, df: pd.DataFrame, var_id: int) -> pd.DataFrame:
-        """Aggregate data to daily based on variable type."""
+        """Agrega datos a resolución diaria según el tipo de variable."""
         if df.empty:
             return df
         
@@ -232,7 +262,7 @@ class RegionalDownloader:
         return df_daily
     
     def _aggregate_custom(self, df: pd.DataFrame, rule: str) -> pd.DataFrame:
-        """Apply custom aggregation rule."""
+        """Aplica una regla de agregación personalizada."""
         if df.empty:
             return df
         
@@ -247,15 +277,18 @@ class RegionalDownloader:
         df: pd.DataFrame,
         filename: Optional[str] = None
     ) -> str:
-        """
-        Save DataFrame to CSV file.
-        
+        """Guarda un DataFrame en archivo CSV.
+
         Args:
-            df: DataFrame to save
-            filename: Output filename (auto-generated if None)
-            
+            df: DataFrame a guardar.
+            filename: Nombre del archivo de salida. Si es ``None`` se
+                genera automáticamente (ej. ``clima_r16.csv``).
+
         Returns:
-            Path to saved file
+            Ruta del archivo guardado.
+
+        Example:
+            >>> ruta = rd.save_to_csv(df, "datos_nuble.csv")
         """
         if filename is None:
             region_code = self.region if self.region.startswith('R') else 'region'

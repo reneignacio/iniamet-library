@@ -33,12 +33,15 @@ from .data import DataDownloader
 from .regional import RegionalDownloader
 from .qc import QualityControl, apply_quality_control, get_qc_report
 from .utils import (
-    get_region_name, 
-    get_variable_info, 
+    get_region_name,
+    get_region_code,
+    normalize_region,
+    normalize_regions,
+    get_variable_info,
     list_all_variables,
     get_variable_id_by_name,
     is_valid_variable_id,
-    REGION_MAP, 
+    REGION_MAP,
     VARIABLE_INFO,
     # Variable ID constants for easy access
     VAR_PRECIPITACION,
@@ -76,6 +79,9 @@ __all__ = [
     "plot_station_map",
     "quick_temp_map",
     "get_region_name",
+    "get_region_code",
+    "normalize_region",
+    "normalize_regions",
     "get_variable_info",
     "list_all_variables",
     "get_variable_id_by_name",

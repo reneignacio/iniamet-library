@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-01-29
+
+### Fixed 🔧
+- **Robust API Error Handling**: Library now handles API errors gracefully without crashing
+  - String error responses (e.g., "identificador de estación incorrecto") no longer cause DataFrame constructor errors
+  - Invalid JSON responses are caught and logged appropriately
+  - HTTP 4xx errors are not retried (saves time on client errors)
+  - All API response methods validate data types before processing
+- **Improved Logging**: Better error messages for troubleshooting API issues
+- **Test Coverage**: New test suite `tests/test_robust_api.py` validates error handling
+
+### Changed 🔄
+- `api_client._request()`: Now returns `None` instead of raising exceptions on failure
+- `api_client.get_variables()`: Added string response validation
+- `api_client.get_stations()`: Added string response validation  
+- `api_client.get_data()`: Added string response validation
+- Request retry logic: Differentiates between 4xx (no retry) and 5xx (retry) errors
+
+### Documentation 📚
+- Added `ROBUSTEZ.md`: Complete documentation of robustness improvements
+- Added `ERROR_FIX_REPORT.md`: Detailed analysis of ARAUCO-ICHILL133 issue
+
 ## [0.2.0] - 2026-01-21
 
 ### Added ✨

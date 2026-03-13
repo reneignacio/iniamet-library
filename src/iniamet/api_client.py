@@ -130,10 +130,7 @@ class APIClient:
             retry: Number of retry attempts
             
         Returns:
-            Parsed JSON response
-            
-        Raises:
-            requests.exceptions.RequestException: If request fails after retries
+            Parsed JSON response or None if request fails
         """
         url = f"{self.BASE_URL}/{endpoint}/"
         
@@ -145,7 +142,14 @@ class APIClient:
             try:
                 response = self.session.get(url, params=params, timeout=self.timeout)
                 response.raise_for_status()
-                data = response.json()
+                
+                # Try to parse JSON
+                try:
+                    data = response.json()
+                except ValueError as json_error:
+                    logger.error(f"Invalid JSON response: {json_error}")
+                    logger.debug(f"Response content: {response.text[:200]}")
+                    return None
                 
                 # API v2 wraps responses in {'response': [...]}
                 if isinstance(data, dict) and 'response' in data:
@@ -153,6 +157,25 @@ class APIClient:
                 
                 return data
                 
+            except requests.exceptions.HTTPError as e:
+                # Safely get status code (e.response may be None in some cases)
+                status_code = getattr(getattr(e, 'response', None), 'status_code', 500)
+                # Don't retry on 4xx errors (client errors)
+                if 400 <= status_code < 500:
+                    logger.error(f"Client error {status_code}: {e}")
+                    return None
+                # Retry on 5xx errors (server errors)
+                if attempt < retry - 1:
+                    wait_time = 2 ** attempt
+                    logger.warning(
+                        f"Request failed (attempt {attempt + 1}/{retry}): {e}. "
+                        f"Retrying in {wait_time}s..."
+                    )
+                    time.sleep(wait_time)
+                else:
+                    logger.error(f"Request failed after {retry} attempts: {e}")
+                    return None
+                    
             except requests.exceptions.RequestException as e:
                 if attempt < retry - 1:
                     wait_time = 2 ** attempt
@@ -163,7 +186,7 @@ class APIClient:
                     time.sleep(wait_time)
                 else:
                     logger.error(f"Request failed after {retry} attempts: {e}")
-                    raise
+                    return None
         
         return None
     
@@ -176,6 +199,11 @@ class APIClient:
         """
         logger.info("Fetching stations from API...")
         data = self._request('estaciones')
+        
+        # Check if API returned an error message (string instead of list)
+        if isinstance(data, str):
+            logger.error(f"API error: {data}")
+            return []
         
         if not data or not isinstance(data, list):
             logger.error("Invalid response from stations endpoint")
@@ -197,6 +225,11 @@ class APIClient:
         logger.info(f"Fetching variables for station {station}...")
         params = {'estacion': station}
         data = self._request('variables', params)
+        
+        # Check if API returned an error message (string instead of list)
+        if isinstance(data, str):
+            logger.warning(f"API error for station {station}: {data}")
+            return []
         
         if not data or not isinstance(data, list):
             logger.warning(f"No variables found for station {station}")
@@ -237,6 +270,11 @@ class APIClient:
         }
         
         data = self._request('muestras', params)
+        
+        # Check if API returned an error message (string instead of list)
+        if isinstance(data, str):
+            logger.warning(f"API error for {station}/{variable}: {data}")
+            return []
         
         if not data or not isinstance(data, list):
             logger.warning(f"No data found for {station}/{variable}")

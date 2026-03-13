@@ -1,7 +1,7 @@
-"""
-Data downloading module.
+"""Módulo de descarga de datos.
 
-Handles time series data retrieval with caching and aggregation support.
+Maneja la descarga de series de tiempo con soporte de caché
+y agregación temporal.
 """
 
 import logging
@@ -18,15 +18,18 @@ logger = logging.getLogger(__name__)
 
 
 class DataDownloader:
-    """Handles data downloads from INIA API."""
+    """Descarga y procesa datos desde la API de INIA.
+
+    Se utiliza internamente por :class:`~iniamet.client.INIAClient`.
+    Normalmente no se instancia directamente.
+    """
     
     def __init__(self, api: APIClient, cache: Optional[CacheManager] = None):
-        """
-        Initialize data downloader.
-        
+        """Inicializa el descargador de datos.
+
         Args:
-            api: API client instance
-            cache: Optional cache manager
+            api: Instancia de :class:`~iniamet.api_client.APIClient`.
+            cache: Instancia de :class:`~iniamet.cache.CacheManager` (opcional).
         """
         self.api = api
         self.cache = cache
@@ -40,45 +43,50 @@ class DataDownloader:
         use_cache: bool = True,
         aggregation: Optional[str] = None
     ) -> pd.DataFrame:
-        """
-        Download time series data with optional aggregation.
-        
+        """Descarga datos de serie de tiempo con agregación temporal opcional.
+
         Args:
-            station: Station code (e.g., "INIA-47")
-            variable: Variable ID (e.g., 2002 for temperature) or name
-            start_date: Start date (YYYY-MM-DD or datetime)
-            end_date: End date (YYYY-MM-DD or datetime)
-            use_cache: Use cached data if available (default: True)
-            aggregation: Optional temporal aggregation:
-                - None or 'raw': Return raw data (default)
-                - 'D' or 'daily': Daily aggregation
-                - 'W': Weekly aggregation
-                - 'M': Monthly aggregation
-                - 'H': Hourly aggregation
-                - Any pandas resample rule
-            
+            station: Código de la estación (ej. ``"INIA-47"``).
+            variable: ID de la variable (ej. ``2002`` para temperatura)
+                o constante (ej. ``VAR_TEMPERATURA_MEDIA``).
+            start_date: Fecha inicio (``"YYYY-MM-DD"`` o ``datetime``).
+            end_date: Fecha fin (``"YYYY-MM-DD"`` o ``datetime``).
+            use_cache: Usar datos en caché si están disponibles.
+            aggregation: Agregación temporal. Alias aceptados:
+
+                - ``None`` / ``"raw"`` / ``"crudo"``: cada 15 min (por defecto)
+                - ``"horario"`` / ``"hourly"`` / ``"H"`` / ``"h"``: horario
+                - ``"diario"`` / ``"daily"`` / ``"D"``: diario
+                - ``"semanal"`` / ``"weekly"`` / ``"W"``: semanal
+                - ``"mensual"`` / ``"monthly"`` / ``"M"``: mensual
+
         Returns:
-            DataFrame with columns: tiempo (datetime), valor (float)
-            If aggregation is applied, may include additional columns
-            depending on variable type (e.g., valor_min, valor_max for temperature)
-            
+            ``pd.DataFrame`` con columnas ``tiempo`` y ``valor``.
+            Para temperatura agregada se agregan ``valor_min``,
+            ``valor_max`` y ``valor_media``.
+            Para precipitación se calcula la suma acumulada.
+
         Raises:
-            ValueError: If dates are invalid or variable ID is unknown
-            
+            ValueError: Si las fechas tienen formato inválido.
+
         Example:
-            >>> from iniamet.data import DataDownloader
-            >>> from iniamet.utils import VAR_TEMPERATURA_MEDIA
-            >>> downloader = DataDownloader(api_client)
-            >>> 
-            >>> # Raw data (15-minute intervals)
-            >>> df = downloader.get_data('INIA-47', VAR_TEMPERATURA_MEDIA,
-            ...                          '2024-09-01', '2024-09-30')
-            >>> 
-            >>> # Daily aggregation
-            >>> df_daily = downloader.get_data('INIA-47', VAR_TEMPERATURA_MEDIA,
-            ...                                 '2024-09-01', '2024-09-30',
-            ...                                 aggregation='D')
+            >>> df = downloader.get_data(
+            ...     "INIA-47", VAR_TEMPERATURA_MEDIA,
+            ...     "2025-01-01", "2025-01-31",
+            ...     aggregation="diario"
+            ... )
         """
+        # Normalize aggregation aliases (pandas >= 3.0 uses lowercase)
+        _AGG_ALIASES = {
+            'daily': 'D', 'diario': 'D', 'd': 'D',
+            'hourly': 'h', 'horario': 'h', 'h': 'h',
+            'weekly': 'W', 'semanal': 'W', 'w': 'W',
+            'monthly': 'ME', 'mensual': 'ME', 'm': 'ME', 'me': 'ME',
+            'raw': None, 'crudo': None,
+        }
+        if aggregation and aggregation.lower() in _AGG_ALIASES:
+            aggregation = _AGG_ALIASES[aggregation.lower()]
+        
         # Parse dates
         start_dt = parse_date(start_date)
         end_dt = parse_date(end_date)
@@ -94,6 +102,11 @@ class DataDownloader:
                     f"Using cached data for {station}/{var_str} "
                     f"({len(df_cached)} records)"
                 )
+                # Apply aggregation to cached data if requested
+                if aggregation and aggregation != 'raw':
+                    return self._apply_aggregation(
+                        df_cached, int(var_str), aggregation
+                    )
                 return df_cached
         
         # Download from API
@@ -142,16 +155,19 @@ class DataDownloader:
         variable_id: int,
         rule: str
     ) -> pd.DataFrame:
-        """
-        Apply temporal aggregation to time series data.
-        
+        """Aplica agregación temporal a datos de serie de tiempo.
+
+        - **Temperatura**: calcula min, max y media.
+        - **Precipitación**: calcula suma acumulada.
+        - **Otras variables**: calcula promedio.
+
         Args:
-            df: Raw data DataFrame with 'tiempo' and 'valor' columns
-            variable_id: Variable ID to determine aggregation method
-            rule: Pandas resample rule (e.g., 'D', 'W', 'M')
-            
+            df: DataFrame con columnas ``tiempo`` y ``valor``.
+            variable_id: ID de la variable (determina el método de agregación).
+            rule: Regla de resample de pandas (ej. ``"D"``, ``"W"``, ``"ME"``).
+
         Returns:
-            Aggregated DataFrame
+            ``pd.DataFrame`` agregado.
         """
         if df.empty:
             return df
@@ -194,18 +210,28 @@ class DataDownloader:
         end_date: Union[str, datetime],
         delay: float = 0.5
     ) -> Dict[str, pd.DataFrame]:
-        """
-        Download data for multiple stations and variables.
-        
+        """Descarga datos de múltiples estaciones y variables.
+
+        Ejecuta las descargas secuencialmente con una pausa entre cada
+        petición para evitar rate-limiting de la API.
+
         Args:
-            stations: List of station codes
-            variables: List of variable IDs
-            start_date: Start date
-            end_date: End date
-            delay: Delay between requests (seconds)
-            
+            stations: Lista de códigos de estación.
+            variables: Lista de IDs de variable.
+            start_date: Fecha inicio.
+            end_date: Fecha fin.
+            delay: Segundos de espera entre peticiones (por defecto ``0.5``).
+
         Returns:
-            Dictionary mapping "station_variable" to DataFrames
+            ``Dict[str, pd.DataFrame]`` donde la clave es
+            ``"estacion_variable"`` (ej. ``"INIA-47_2002"``).
+
+        Example:
+            >>> datos = downloader.bulk_download(
+            ...     ["INIA-47", "INIA-139"],
+            ...     [VAR_TEMPERATURA_MEDIA],
+            ...     "2025-01-01", "2025-01-31"
+            ... )
         """
         results = {}
         total = len(stations) * len(variables)
@@ -250,15 +276,19 @@ class DataDownloader:
         df: pd.DataFrame,
         agg_func: str = 'mean'
     ) -> pd.DataFrame:
-        """
-        Aggregate sub-daily data to daily.
-        
+        """Agrega datos sub-diarios a resolución diaria.
+
         Args:
-            df: DataFrame with 'tiempo' and 'valor' columns
-            agg_func: Aggregation function ('mean', 'sum', 'min', 'max')
-            
+            df: DataFrame con columnas ``tiempo`` y ``valor``.
+            agg_func: Función de agregación:
+                ``"mean"`` (promedio), ``"sum"`` (suma),
+                ``"min"`` (mínimo), ``"max"`` (máximo).
+
         Returns:
-            Daily aggregated DataFrame
+            ``pd.DataFrame`` con datos diarios.
+
+        Example:
+            >>> df_diario = downloader.aggregate_daily(df, agg_func="mean")
         """
         if df.empty or 'tiempo' not in df.columns:
             return df
@@ -284,14 +314,18 @@ class DataDownloader:
         self,
         df: pd.DataFrame
     ) -> pd.DataFrame:
-        """
-        Aggregate temperature data to daily min/max/mean.
-        
+        """Agrega temperatura a resolución diaria con min/max/media.
+
         Args:
-            df: DataFrame with 'tiempo' and 'valor' columns
-            
+            df: DataFrame con columnas ``tiempo`` y ``valor``.
+
         Returns:
-            Daily DataFrame with columns: tiempo, tmean, tmin, tmax
+            ``pd.DataFrame`` con columnas: ``tiempo``, ``tmean``, ``tmin``, ``tmax``.
+
+        Example:
+            >>> df_temp = downloader.aggregate_temperature_daily(df)
+            >>> print(df_temp.columns.tolist())
+            ['tiempo', 'tmean', 'tmin', 'tmax']
         """
         if df.empty or 'tiempo' not in df.columns:
             return pd.DataFrame()

@@ -1,7 +1,6 @@
-"""
-High-level client for INIA agrometeorological data.
+"""Cliente principal para datos agrometeorológicos de INIA Chile.
 
-This is the main entry point for the library.
+Este módulo es el punto de entrada principal de la librería.
 """
 
 import logging
@@ -18,16 +17,24 @@ logger = logging.getLogger(__name__)
 
 
 class INIAClient:
-    """
-    High-level client for accessing INIA agrometeorological station data.
-    
-    This is the main class that users interact with. It provides simple,
-    high-level methods to query stations and download data.
-    
+    """Cliente de alto nivel para acceder a datos de estaciones agrometeorológicas de INIA.
+
+    Clase principal de la librería. Provee métodos simples para consultar
+    estaciones, variables y descargar series de tiempo.
+
+    Args:
+        api_key: Clave de la API de INIA Agromet. Si no se entrega, se busca
+            en la variable de entorno ``INIA_API_KEY`` o en ``~/.iniamet/config``.
+        cache: Activar/desactivar el caché local en disco (por defecto ``True``).
+        cache_dir: Directorio donde se almacena el caché (por defecto ``./iniamet_cache``).
+
     Example:
-        >>> client = INIAClient()
-        >>> stations = client.get_stations(region="R16")
-        >>> data = client.get_data("INIA-47", 2002, "2024-09-01", "2024-09-30")
+        >>> from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA
+        >>> client = INIAClient(api_key="tu_key")
+        >>> estaciones = client.get_stations(region="Ñuble")
+        >>> temp = client.get_data("INIA-47", VAR_TEMPERATURA_MEDIA,
+        ...                        "2025-01-01", "2025-01-31",
+        ...                        aggregation="diario")
     """
     
     def __init__(
@@ -36,13 +43,13 @@ class INIAClient:
         cache: bool = True,
         cache_dir: str = "./iniamet_cache"
     ):
-        """
-        Initialize INIA client.
-        
+        """Inicializa el cliente INIA.
+
         Args:
-            api_key: Optional custom API key
-            cache: Enable/disable caching
-            cache_dir: Directory for cache files
+            api_key: Clave de API. Si es ``None``, se busca en variable de entorno
+                o archivo de configuración.
+            cache: Activar caché en disco (por defecto ``True``).
+            cache_dir: Ruta del directorio de caché.
         """
         self.api = APIClient(api_key=api_key)
         self.cache_manager = CacheManager(cache_dir=cache_dir) if cache else None
@@ -53,24 +60,27 @@ class INIAClient:
     
     def get_stations(
         self,
-        region: Optional[str] = None,
+        region: Optional[Union[str, List[str]]] = None,
         station_type: Optional[str] = None,
         force_update: bool = False
     ) -> pd.DataFrame:
-        """
-        Get list of available stations.
-        
+        """Obtiene la lista de estaciones disponibles.
+
         Args:
-            region: Filter by region code (e.g., "R16" for Ñuble)
-            station_type: Filter by station type (e.g., "INIA", "DMC")
-            force_update: Force refresh from API (bypass cache)
-            
+            region: Una o más regiones. Acepta cualquier formato:
+                ``"R16"``, ``"Ñuble"``, ``"16"`` o una lista
+                ``["R16", "R08"]``.
+            station_type: Filtrar por tipo de estación (ej. ``"INIA"``, ``"DMC"``).
+            force_update: Forzar actualización desde la API (ignora caché).
+
         Returns:
-            DataFrame with station information
-            
-        Example:
-            >>> stations = client.get_stations(region="R16")
-            >>> print(stations[['codigo', 'nombre', 'region']])
+            ``pd.DataFrame`` con columnas: ``codigo``, ``nombre``, ``region``,
+            ``comuna``, ``latitud``, ``longitud``, ``elevacion``, ``tipo``,
+            ``primera_lectura``.
+
+        Examples:
+            >>> client.get_stations(region="Ñuble")
+            >>> client.get_stations(region=["R16", "R08"], station_type="INIA")
         """
         return self.station_manager.get_stations(
             region=region,
@@ -83,16 +93,15 @@ class INIAClient:
         station: str,
         force_update: bool = False
     ) -> pd.DataFrame:
-        """
-        Get available variables for a station.
-        
+        """Obtiene las variables disponibles para una estación.
+
         Args:
-            station: Station code
-            force_update: Force refresh from API (bypass cache)
-            
+            station: Código de la estación (ej. ``"INIA-47"``).
+            force_update: Forzar actualización desde la API.
+
         Returns:
-            DataFrame with variable information
-            
+            ``pd.DataFrame`` con columnas: ``variable_id``, ``nombre``, ``unidad``.
+
         Example:
             >>> variables = client.get_variables("INIA-47")
             >>> print(variables[['variable_id', 'nombre', 'unidad']])
@@ -111,46 +120,37 @@ class INIAClient:
         use_cache: bool = True,
         aggregation: Optional[str] = None
     ) -> pd.DataFrame:
-        """
-        Download time series data for a station and variable.
-        
+        """Descarga datos de serie de tiempo para una estación y variable.
+
         Args:
-            station: Station code (e.g., "INIA-47")
-            variable: Variable ID (int) or name (str)
-                     Use constants from utils: VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION, etc.
-            start_date: Start date (YYYY-MM-DD or datetime)
-            end_date: End date (YYYY-MM-DD or datetime)
-            use_cache: Use cached data if available (default: True)
-            aggregation: Optional temporal aggregation:
-                - None or 'raw': Return raw data (default)
-                - 'D' or 'daily': Daily aggregation
-                - 'W': Weekly, 'M': Monthly
-                - Any pandas resample rule
-            
+            station: Código de la estación (ej. ``"INIA-47"``).
+            variable: ID de la variable (``int``) o constante.
+                Usa las constantes: ``VAR_TEMPERATURA_MEDIA``,
+                ``VAR_PRECIPITACION``, etc.
+            start_date: Fecha inicio (``"YYYY-MM-DD"`` o ``datetime``).
+            end_date: Fecha fin (``"YYYY-MM-DD"`` o ``datetime``).
+            use_cache: Usar datos en caché si están disponibles.
+            aggregation: Agregación temporal opcional:
+
+                - ``None`` / ``"raw"`` / ``"crudo"``: datos cada 15 min (por defecto)
+                - ``"horario"`` / ``"hourly"`` / ``"H"``: horario
+                - ``"diario"`` / ``"daily"`` / ``"D"``: diario
+                - ``"semanal"`` / ``"weekly"`` / ``"W"``: semanal
+                - ``"mensual"`` / ``"monthly"`` / ``"M"``: mensual
+
         Returns:
-            DataFrame with columns: tiempo, valor (and valor_min, valor_max for temperature)
-            
+            ``pd.DataFrame`` con columnas ``tiempo`` y ``valor``.
+            Para temperatura con agregación diaria se agregan
+            ``valor_min``, ``valor_max`` y ``valor_media``.
+            Para precipitación se calcula la suma.
+
         Example:
-            >>> from iniamet import INIAClient
-            >>> from iniamet.utils import VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION
-            >>> 
-            >>> client = INIAClient()
-            >>> 
-            >>> # Raw temperature data (15-min intervals)
+            >>> from iniamet import INIAClient, VAR_TEMPERATURA_MEDIA
+            >>> client = INIAClient(api_key="...")
             >>> temp = client.get_data(
-            ...     station="INIA-47",
-            ...     variable=VAR_TEMPERATURA_MEDIA,
-            ...     start_date="2024-09-01",
-            ...     end_date="2024-09-30"
-            ... )
-            >>> 
-            >>> # Daily precipitation totals
-            >>> precip = client.get_data(
-            ...     station="INIA-47",
-            ...     variable=VAR_PRECIPITACION,
-            ...     start_date="2024-09-01",
-            ...     end_date="2024-09-30",
-            ...     aggregation='D'
+            ...     "INIA-47", VAR_TEMPERATURA_MEDIA,
+            ...     "2025-01-01", "2025-01-31",
+            ...     aggregation="diario"
             ... )
         """
         return self.data_downloader.get_data(
@@ -170,25 +170,27 @@ class INIAClient:
         end_date: Union[str, datetime],
         delay: float = 0.5
     ) -> Dict[str, pd.DataFrame]:
-        """
-        Download data for multiple stations and variables.
-        
+        """Descarga datos de múltiples estaciones y variables.
+
         Args:
-            stations: List of station codes
-            variables: List of variable IDs
-            start_date: Start date
-            end_date: End date
-            delay: Delay between requests (seconds) to avoid rate limiting
-            
+            stations: Lista de códigos de estación
+                (ej. ``["INIA-47", "INIA-139"]``).
+            variables: Lista de IDs de variable
+                (ej. ``[VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION]``).
+            start_date: Fecha inicio.
+            end_date: Fecha fin.
+            delay: Segundos de espera entre peticiones (evita rate-limiting).
+
         Returns:
-            Dictionary mapping "station_variable" to DataFrames
-            
+            ``Dict[str, pd.DataFrame]`` donde la clave es
+            ``"estacion_variable"`` (ej. ``"INIA-47_2002"``).
+
         Example:
-            >>> data = client.bulk_download(
+            >>> datos = client.bulk_download(
             ...     stations=["INIA-47", "INIA-139"],
-            ...     variables=[2002, 2001],
-            ...     start_date="2024-09-01",
-            ...     end_date="2024-09-30"
+            ...     variables=[VAR_TEMPERATURA_MEDIA, VAR_PRECIPITACION],
+            ...     start_date="2025-01-01",
+            ...     end_date="2025-01-31"
             ... )
         """
         return self.data_downloader.bulk_download(
@@ -204,15 +206,18 @@ class INIAClient:
         station: str,
         variable: Union[int, str]
     ) -> bool:
-        """
-        Check if a variable is available for a station.
-        
+        """Verifica si una variable está disponible para una estación.
+
         Args:
-            station: Station code
-            variable: Variable ID or name
-            
+            station: Código de la estación (ej. ``"INIA-47"``).
+            variable: ID de la variable (``int``) o nombre (``str``).
+
         Returns:
-            True if variable is available, False otherwise
+            ``True`` si la variable existe para esa estación.
+
+        Example:
+            >>> client.validate_station_variable("INIA-47", VAR_TEMPERATURA_MEDIA)
+            True
         """
         return self.station_manager.validate_station_variable(
             station=station,
@@ -220,7 +225,7 @@ class INIAClient:
         )
     
     def close(self):
-        """Close connections and cleanup."""
+        """Cierra la conexión HTTP y libera recursos."""
         self.api.close()
         logger.info("INIA Client closed")
     

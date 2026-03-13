@@ -1,0 +1,57 @@
+[
+  {
+    "variable_id": "2001",
+    "nombre": "Precipitación",
+    "unidad": "Milímetros"
+  },
+  {
+    "variable_id": "2013",
+    "nombre": "Velocidad Viento Media",
+    "unidad": "Metros por Segundo"
+  },
+  {
+    "variable_id": "2012",
+    "nombre": "Dirección del Viento",
+    "unidad": "Grados"
+  },
+  {
+    "variable_id": "2022",
+    "nombre": "Radiación Media",
+    "unidad": "Watts por metro cuadrado"
+  },
+  {
+    "variable_id": "2002",
+    "nombre": "Temperatura del Aire Media",
+    "unidad": "Grados Celcius"
+  },
+  {
+    "variable_id": "2007",
+    "nombre": "Humedad Relativa Media",
+    "unidad": "Porcentaje"
+  },
+  {
+    "variable_id": "2027",
+    "nombre": "Temperatura Suelo 10cm Media",
+    "unidad": "Grados Celcius"
+  },
+  {
+    "variable_id": "2077",
+    "nombre": "Temperatura Superficie Media",
+    "unidad": "Grados Celcius"
+  },
+  {
+    "variable_id": "2014",
+    "nombre": "Velocidad Viento Máxima",
+    "unidad": "Metros por Segundo"
+  },
+  {
+    "variable_id": "2125",
+    "nombre": "Presión Atmosférica",
+    "unidad": "milibares"
+  },
+  {
+    "variable_id": "2024",
+    "nombre": "Batería Voltaje Mínima",
+    "unidad": "Volts"
+  }
+]

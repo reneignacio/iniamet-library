@@ -179,7 +179,7 @@ def is_valid_variable_id(variable_id: int) -> bool:
     return variable_id in VARIABLE_INFO
 
 
-def list_all_variables() -> 'pd.DataFrame':
+def list_all_variables():
     """
     Get a DataFrame with all known variables.
     
@@ -264,12 +264,12 @@ def normalize_text(text: str) -> str:
     return text
 
 
-def parse_date(date: Union[str, datetime, date]) -> datetime:
+def parse_date(date_input: Union[str, datetime, date]) -> datetime:
     """
     Parse date from string, datetime, or date.
     
     Args:
-        date: Date as string (YYYY-MM-DD), datetime object, or date object
+        date_input: Date as string (YYYY-MM-DD), datetime object, or date object
         
     Returns:
         datetime object
@@ -278,19 +278,19 @@ def parse_date(date: Union[str, datetime, date]) -> datetime:
         ValueError: If date format is invalid
     """
     # Handle different input types
-    if isinstance(date, str):
+    if isinstance(date_input, str):
         try:
-            return datetime.strptime(date, '%Y-%m-%d')
+            return datetime.strptime(date_input, '%Y-%m-%d')
         except ValueError:
             raise ValueError(
-                f"Invalid date format: {date}. Expected YYYY-MM-DD"
+                f"Invalid date format: {date_input}. Expected YYYY-MM-DD"
             )
-    elif isinstance(date, datetime):
-        return date
-    elif isinstance(date, date):
-        return datetime.combine(date, datetime.min.time())
+    elif isinstance(date_input, datetime):
+        return date_input
+    elif isinstance(date_input, date):
+        return datetime.combine(date_input, datetime.min.time())
     else:
-        raise TypeError(f"Expected str, datetime, or date, got {type(date)}")
+        raise TypeError(f"Expected str, datetime, or date, got {type(date_input)}")
 
 
 def format_station_code(code: str) -> str:
@@ -342,21 +342,124 @@ def get_region_name(code: str) -> str:
 def get_region_code(name: str) -> Optional[str]:
     """
     Get region code from name.
-    
+
     Args:
         name: Region name (e.g., "Ñuble") or code (e.g., "R16")
-        
+
     Returns:
         Region code (e.g., "R16") or None if invalid
     """
     # If already a code, return it
     if name.upper() in REGION_MAP:
         return name.upper()
-    
+
     name_normalized = normalize_text(name)
-    
+
     for code, region_name in REGION_MAP.items():
         if normalize_text(region_name) == name_normalized:
             return code
-    
+
     return None
+
+
+def normalize_region(region: str) -> str:
+    """
+    Normalize region input to region name for filtering.
+
+    Accepts multiple formats:
+    - Numbers: "16", "7", "07", "007"
+    - With R prefix: "R16", "R07", "r7"
+    - Names: "Ñuble", "Maule", "nuble", "MAULE"
+
+    Args:
+        region: Region in any supported format
+
+    Returns:
+        Region name (e.g., "Ñuble", "Maule")
+
+    Raises:
+        ValueError: If region cannot be resolved
+
+    Examples:
+        >>> normalize_region("16")
+        'Ñuble'
+        >>> normalize_region("R07")
+        'Maule'
+        >>> normalize_region("7")
+        'Maule'
+        >>> normalize_region("Ñuble")
+        'Ñuble'
+        >>> normalize_region("maule")
+        'Maule'
+    """
+    region = str(region).strip()
+
+    if not region:
+        raise ValueError(
+            "Region cannot be empty. "
+            "Use number (7, 16), code (R07, R16), or name (Maule, Ñuble)"
+        )
+
+    # Remove 'R' prefix if present and normalize
+    region_upper = region.upper()
+    if region_upper.startswith('R'):
+        code_part = region_upper[1:]
+    else:
+        code_part = region_upper
+
+    # Try to parse as number (handles "16", "07", "7", etc.)
+    try:
+        num = int(code_part)
+        # Format as R## code
+        region_code = f"R{num:02d}"
+        if region_code in REGION_MAP:
+            return REGION_MAP[region_code]
+    except ValueError:
+        pass
+
+    # Already in R## format?
+    if region_upper in REGION_MAP:
+        return REGION_MAP[region_upper]
+
+    # Try as region name (exact match first)
+    for code, name in REGION_MAP.items():
+        if name.upper() == region_upper:
+            return name
+
+    # Try normalized match (without accents)
+    region_normalized = normalize_text(region)
+    for code, name in REGION_MAP.items():
+        if normalize_text(name) == region_normalized:
+            return name
+
+    # Try partial match
+    for code, name in REGION_MAP.items():
+        if region_normalized in normalize_text(name):
+            return name
+
+    raise ValueError(
+        f"Unknown region: '{region}'. "
+        f"Use number (7, 16), code (R07, R16), or name (Maule, Ñuble)"
+    )
+
+
+def normalize_regions(regions) -> list:
+    """
+    Normalize a list of regions to region names.
+
+    Args:
+        regions: Single region or list of regions in any format
+
+    Returns:
+        List of region names
+
+    Examples:
+        >>> normalize_regions(["16", "7"])
+        ['Ñuble', 'Maule']
+        >>> normalize_regions("R16")
+        ['Ñuble']
+    """
+    if isinstance(regions, str):
+        regions = [regions]
+
+    return [normalize_region(r) for r in regions]

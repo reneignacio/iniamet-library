@@ -1,7 +1,7 @@
-"""
-Station management module.
+"""Módulo de gestión de estaciones.
 
-Handles station queries, filtering, and variable validation.
+Maneja consultas, filtrado y validación de variables de estaciones
+agrometeorológicas.
 """
 
 import logging
@@ -10,21 +10,24 @@ import pandas as pd
 
 from .api_client import APIClient
 from .cache import CacheManager
-from .utils import normalize_text, REGION_MAP
+from .utils import normalize_text, normalize_region, normalize_regions, REGION_MAP
 
 logger = logging.getLogger(__name__)
 
 
 class StationManager:
-    """Manages station catalog and queries."""
+    """Gestiona el catálogo de estaciones y sus consultas.
+
+    Se utiliza internamente por :class:`~iniamet.client.INIAClient`.
+    Normalmente no se instancia directamente.
+    """
     
     def __init__(self, api: APIClient, cache: Optional[CacheManager] = None):
-        """
-        Initialize station manager.
-        
+        """Inicializa el gestor de estaciones.
+
         Args:
-            api: API client instance
-            cache: Optional cache manager
+            api: Instancia de :class:`~iniamet.api_client.APIClient`.
+            cache: Instancia de :class:`~iniamet.cache.CacheManager` (opcional).
         """
         self.api = api
         self.cache = cache
@@ -32,21 +35,26 @@ class StationManager:
     
     def get_stations(
         self,
-        region: Optional[str] = None,
+        region: Optional[Union[str, List[str]]] = None,
         station_type: Optional[str] = None,
         force_update: bool = False
     ) -> pd.DataFrame:
-        """
-        Get stations with optional filtering.
-        
+        """Obtiene estaciones con filtrado opcional.
+
         Args:
-            region: Region code (e.g., "R16") or name (e.g., "Ñuble")
-            station_type: Station type prefix (e.g., "INIA", "DMC")
-            force_update: Force refresh from API
-            
+            region: Una o más regiones. Acepta:
+                ``"R16"``, ``"Ñuble"``, ``"16"`` o
+                ``["R16", "R08"]`` para varias.
+            station_type: Prefijo de tipo de estación (ej. ``"INIA"``, ``"DMC"``).
+            force_update: Forzar descarga desde la API (ignora caché).
+
         Returns:
-            DataFrame with columns: codigo, nombre, region, comuna, 
-                                   latitud, longitud, elevacion, tipo
+            ``pd.DataFrame`` con columnas: ``codigo``, ``nombre``, ``region``,
+            ``comuna``, ``latitud``, ``longitud``, ``elevacion``, ``tipo``,
+            ``primera_lectura``.
+
+        Example:
+            >>> sm.get_stations(region="Ñuble", station_type="INIA")
         """
         # Check memory cache
         if self._stations_cache is not None and not force_update:
@@ -101,30 +109,23 @@ class StationManager:
     def _filter_stations(
         self,
         df: pd.DataFrame,
-        region: Optional[str] = None,
+        region: Optional[Union[str, List[str]]] = None,
         station_type: Optional[str] = None
     ) -> pd.DataFrame:
-        """Apply filters to station DataFrame."""
+        """Aplica filtros al DataFrame de estaciones."""
         if df.empty:
             return df
         
         result = df.copy()
         
-        # Filter by region
+        # Filter by region (accepts single or list, any format)
         if region:
-            # Convert region code to name if needed
-            if region.upper().startswith('R'):
-                region_name = REGION_MAP.get(region.upper())
-                if region_name:
-                    result = result[result['region'] == region_name]
-                else:
-                    logger.warning(f"Unknown region code: {region}")
-                    return pd.DataFrame()
-            else:
-                # Direct region name match
-                result = result[
-                    result['region'].str.lower() == region.lower()
-                ]
+            try:
+                region_names = normalize_regions(region)
+                result = result[result['region'].isin(region_names)]
+            except ValueError as e:
+                logger.warning(f"Region error: {e}")
+                return pd.DataFrame()
         
         # Filter by station type
         if station_type:
@@ -140,15 +141,17 @@ class StationManager:
         station: str,
         force_update: bool = False
     ) -> pd.DataFrame:
-        """
-        Get available variables for a station.
-        
+        """Obtiene las variables disponibles para una estación.
+
         Args:
-            station: Station code
-            force_update: Force refresh from API
-            
+            station: Código de la estación (ej. ``"INIA-47"``).
+            force_update: Forzar descarga desde la API.
+
         Returns:
-            DataFrame with columns: variable_id, nombre, unidad
+            ``pd.DataFrame`` con columnas: ``variable_id``, ``nombre``, ``unidad``.
+
+        Example:
+            >>> variables = sm.get_variables("INIA-47")
         """
         # Check cache
         if self.cache and not force_update:
@@ -187,15 +190,22 @@ class StationManager:
         station: str,
         variable: Union[int, str]
     ) -> bool:
-        """
-        Check if a variable exists for a station.
-        
+        """Verifica si una variable existe para una estación.
+
+        Acepta búsqueda por ID numérico o por nombre (búsqueda difusa).
+
         Args:
-            station: Station code
-            variable: Variable ID (int) or name (str)
-            
+            station: Código de la estación (ej. ``"INIA-47"``).
+            variable: ID de la variable (``int``) o nombre (``str``).
+
         Returns:
-            True if variable exists, False otherwise
+            ``True`` si la variable está disponible.
+
+        Example:
+            >>> sm.validate_station_variable("INIA-47", 2002)
+            True
+            >>> sm.validate_station_variable("INIA-47", "temperatura")
+            True
         """
         df_vars = self.get_variables(station)
         
@@ -220,15 +230,19 @@ class StationManager:
         station: str,
         variable_name: str
     ) -> Optional[int]:
-        """
-        Find variable ID by name.
-        
+        """Busca el ID de una variable por nombre (búsqueda difusa).
+
         Args:
-            station: Station code
-            variable_name: Variable name (e.g., "temperatura", "precipitacion")
-            
+            station: Código de la estación.
+            variable_name: Nombre o parte del nombre de la variable
+                (ej. ``"temperatura"``, ``"precipitacion"``).
+
         Returns:
-            Variable ID if found, None otherwise
+            ID de la variable si se encuentra, ``None`` en caso contrario.
+
+        Example:
+            >>> sm.find_variable_id("INIA-47", "temperatura")
+            2002
         """
         df_vars = self.get_variables(station)
         

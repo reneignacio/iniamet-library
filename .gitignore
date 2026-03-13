@@ -1,172 +1,100 @@
-# Byte-compiled / optimized / DLL files
+# ============================================
+# Python
+# ============================================
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
-MANIFEST
+dist/
+build/
+.eggs/
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IPython
-profile_default/
-ipython_config.py
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# PEP 582
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
+# ============================================
 # Environments
+# ============================================
 .env
 .venv
-env/
 venv/
-ENV/
-env.bak/
-venv.bak/
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# ============================================
+# IDE
+# ============================================
+.idea/
+.vscode/
+*.swp
+*~
 
-# Rope project settings
-.ropeproject
+# ============================================
+# OS
+# ============================================
+.DS_Store
+Thumbs.db
+desktop.ini
+nul
 
-# mkdocs documentation
-/site
+# ============================================
+# Testing
+# ============================================
+.pytest_cache/
+htmlcov/
+.coverage
+*.cover
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# INIAMET specific
+# ============================================
+# INIAMET - Cache (se crea automáticamente)
+# ============================================
 iniamet_cache/
-outputs/
+**/iniamet_cache/
+
+# ============================================
+# Datos generados (no trackear en git)
+# ============================================
+datos_*/
 *.csv
 *.parquet
+*.xlsx
 *.html
-examples/iniamet_cache/
-examples/*.html
-examples/*.csv
-examples/*.parquet
+*.gpkg
 
-# API Keys and sensitive config
+datos*/
+*.csv
+*.parquet
+*.xlsx
+*.html
+*.gpkg
+# ============================================
+# API Keys y configuración sensible
+# ============================================
 .iniamet/
 config.ini
 secrets.yaml
 .env.local
 *.key
+.pypirc*
 
-# Test outputs
-test_output/
-temp/
-tmp/
+# ============================================
+# Documentación generada
+# ============================================
+docs/_build/
+site/
 
-# Internal/development documentation
-PROJECT_SUMMARY.md
-FUNCTION_REFERENCE.md
-GITHUB_TESTS_FIX.md
-TEST_STATUS.md
-PUBLISHING.md
-GITHUB_SETUP.md
+# ============================================
+# Agentes / herramientas dev
+# ============================================
+.claude/
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Large data files
+# ============================================
+# Datos grandes
+# ============================================
 *.nc
 *.grib
 *.tif
 *.geotiff
+
+# ============================================
+# Cache variables (exclusiones puntuales)
+# ============================================
+descarga_datos_proyecto_FIA/cache/variables/AGRICHILE-21033188.json
+descarga_datos_proyecto_FIA/cache/variables/ARAUCO-IBULNE5.json
